@@ -60,6 +60,6 @@ target/
 
 settings.py
 
-*.sqlite
+*.sqlite3
 
 # Created by .ignore support plugin (hsz.mobi)

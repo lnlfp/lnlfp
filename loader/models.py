@@ -31,7 +31,7 @@ class ListField(models.TextField):
     description = 'Holds a Python List'
 
     def __init__(self, *args, **kwargs):
-        self.delimiter = kwargs.pop('delimiter')
+        self.delimiter = kwargs.pop('delimiter', ',')
         super(ListField, self).__init__(*args, **kwargs)
 
     def to_python(self, value):
@@ -76,6 +76,24 @@ class ListField(models.TextField):
         return self.get_prep_value(value)
 
 
+class Feed(models.Model):
+    """
+    Model to hold the feed details.
+    """
+
+    #####################
+    #  Relational Info  #
+    #####################
+
+    users = models.ManyToManyField(User)
+
+    #####################
+    #   Identity Info   #
+    #####################
+
+    name = models.CharField(max_length=50, unique=True)
+
+
 class File(models.Model):
     """
     Model to hold the file details.
@@ -98,21 +116,3 @@ class File(models.Model):
 
     delimiter = models.CharField(null=True, max_length=1)
     columns = ListField(null=True)
-
-
-class Feed(models.Model):
-    """
-    Model to hold the feed details.
-    """
-
-    #####################
-    #  Relational Info  #
-    #####################
-
-    users = models.ManyToManyField(User)
-
-    #####################
-    #   Identity Info   #
-    #####################
-
-    name = models.CharField(max_length=50, unique=True)

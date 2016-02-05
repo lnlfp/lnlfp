@@ -69,3 +69,11 @@ class File(models.Model):
         :return: list, list of column header
         """
         return self.columns.split(self.delimiter)
+
+    def set_columns(self, lst):
+        """
+        Take a list of columns and set the columns property to a string representing this.
+
+        :param lst: lst, a list representing the columns in this file.
+        """
+        self.columns = str(lst)

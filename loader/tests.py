@@ -13,29 +13,31 @@ class FileTestCase(TestCase):
         self.bad_user = User.objects.create_user('bad', 'bad@example.com', 'password')
 
         self.usable_feed = Feed.objects.create(name='test_feed')
-        self.usable_feed.members.add(self.good_user)
+        self.usable_feed.users.add(self.good_user)
 
         self.usable_feed.save()
-    # TODO: Ensure every file has a feed and a user
-    # TODO: Delimiter can't be more than one.
 
     def test_needs_feed(self):
-        with self.assertRaises(IntegrityError):
-            File.objects.create()
+        with self.assertRaises(Feed.DoesNotExist):
+            File.objects.create(user=self.good_user, file_name='test.csv')
 
     def test_needs_user(self):
-        with self.assertRaises(IntegrityError):
-            File.objects.create(feed=self.usable_feed)
+        with self.assertRaises(User.DoesNotExist):
+            File.objects.create(feed=self.usable_feed, file_name='test.csv')
+
+    def test_needs_file_name(self):
+        with self.assertRaises(ValidationError):
+            File.objects.create(feed=self.usable_feed, user=self.good_user)
 
     def test_authorised_user(self):
-        f_good = File(feed=self.usable_feed, user=self.good_user)
+        f_good = File(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
         f_good.clean()
         with self.assertRaises(ValidationError):
             f_bad = File(feed=self.usable_feed, user=self.bad_user)
             f_bad.clean()
 
     def test_created_date(self):
-        file = File.objects.create(feed=self.usable_feed, user=self.good_user)
+        file = File.objects.create(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
         self.assertEqual(file.upload_date.date(), datetime.date.today())
 
     def test_file_path(self):

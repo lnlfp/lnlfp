@@ -1,7 +1,8 @@
 import ast
 
-from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db import models
 
 
 def feed_directory_path(instance, filename):
@@ -36,7 +37,7 @@ class Feed(models.Model):
     #   Identity Info   #
     #####################
 
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True, null=False)
 
 
 class File(models.Model):
@@ -59,8 +60,8 @@ class File(models.Model):
     file_name = models.CharField(null=False, max_length=100)
     upload_date = models.DateTimeField(auto_now_add=True)
 
-    delimiter = models.CharField(null=True, max_length=1)
-    columns = models.TextField(null=True)
+    delimiter = models.CharField(null=True, max_length=1, default=',')
+    columns = models.TextField(null=True, blank=True)
 
     def get_columns(self):
         """
@@ -68,7 +69,10 @@ class File(models.Model):
 
         :return: list, list of column header
         """
-        return self.columns.split(self.delimiter)
+        if self.columns.split(self.delimiter):
+            return self.columns.split(self.delimiter)
+        else:
+            return []
 
     def set_columns(self, lst):
         """
@@ -76,4 +80,19 @@ class File(models.Model):
 
         :param lst: lst, a list representing the columns in this file.
         """
-        self.columns = str(lst)
+
+        self.columns = ','.join(lst)
+
+    def clean(self, exclude=None):
+        """
+        We need to do some model validation to ensure the User given is acceptable.
+
+        :param exclude:
+        :return: None
+        """
+        if self.user not in self.feed.users.all():
+            raise ValidationError('This User is not authorised to upload files to this feed!')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(File, self).save(*args, **kwargs)

@@ -61,7 +61,7 @@ target/
 */migrations/*.*
 
 settings.py
-*
+
 *.sqlite3
 
 # Created by .ignore support plugin (hsz.mobi)

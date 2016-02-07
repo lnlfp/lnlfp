@@ -1,0 +1,22 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/loader.css' %}">
+
+<div id="title">Lock 'n' Load</div>
+
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>{{ form.non_field_errors }}</p>
+
+        {{ form.errors }}
+        <table id="file_outer" style="width: 100%;">
+            <tr class="file_inner" style="display: table;margin: 0 auto;">
+
+                <td id="feed">{{ form.feed }}</td>
+                <td id="file">{{ form.data }}</td>
+                <td id="submit">
+                    <input type="submit" value="Upload"/>
+                </td>
+            </tr>
+        </table>
+</form>

@@ -39,6 +39,14 @@ class Feed(models.Model):
 
     name = models.CharField(max_length=50, unique=True, null=False)
 
+    def __str__(self):
+        """
+        Return name of feed for when it is represented.
+
+        :return: str, name of feed
+        """
+        return self.name
+
 
 class File(models.Model):
     """
@@ -50,7 +58,7 @@ class File(models.Model):
     #####################
 
     user = models.ForeignKey(User)
-    feed = models.ForeignKey(Feed)
+    feed =  models.ForeignKey(Feed)
 
     #####################
     #  File Based Info  #
@@ -95,5 +103,22 @@ class File(models.Model):
             raise ValidationError('This User is not authorised to upload files to this feed!')
 
     def save(self, *args, **kwargs):
+        """
+        This is called before committing.
+
+        We need to use it to call the clean method which will validate relevant fields.
+
+        :param args: arbitrary list of arguments for super method.
+        :param kwargs: arbitrary dictionary or arguments for super method
+        :return: result of super function
+        """
         self.full_clean()
         return super(File, self).save(*args, **kwargs)
+
+    def __str__(self):
+        """
+        concatenate upload date and file name to provide rough storage location.
+
+        :return: str, identifying string for this file.
+        """
+        return self.upload_date.strftime('%Y%m%d') + '/' + self.file_name

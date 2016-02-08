@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
-def feed_directory_path(instance, filename):
+def feed_directory_path(instance):
     """
     Function to return an upload path for new files.
 
@@ -19,7 +19,7 @@ def feed_directory_path(instance, filename):
     """
     return '{0}/{1}/{2}'.format(instance.feed.name,
                                 instance.upload_date.strftime('%Y%m%d'),
-                                filename)
+                                instance.filename)
 
 
 class Feed(models.Model):
@@ -34,7 +34,7 @@ class Feed(models.Model):
     users = models.ManyToManyField(User)
 
     #####################
-    #   Identity Info   #
+    # Identifying Info  #
     #####################
 
     name = models.CharField(max_length=50, unique=True, null=False)
@@ -45,6 +45,29 @@ class Feed(models.Model):
 
         :return: str, name of feed
         """
+        return self.name
+
+class Column(models.Model):
+    """
+    We need to recognise where some columns have special significance.
+
+    These may have to be identified for some process later on.
+    """
+
+    ####################
+    # Identifying Info #
+    ####################
+
+    name = models.CharField(max_length=50, unique=True)
+    col_type = models.CharField(max_length=30)
+
+    def __str__(self):
+        """
+        Return name of column for when it is represented.
+
+        :return: str, name of column.
+        """
+
         return self.name
 
 
@@ -59,6 +82,7 @@ class File(models.Model):
 
     user = models.ForeignKey(User)
     feed =  models.ForeignKey(Feed)
+    special_columns = models.ManyToManyField(Column)
 
     #####################
     #  File Based Info  #
@@ -122,12 +146,3 @@ class File(models.Model):
         :return: str, identifying string for this file.
         """
         return self.upload_date.strftime('%Y%m%d') + '/' + self.file_name
-
-class Column(models.Model):
-    """
-    We need to recognise where some columns have special significance.
-
-    These may have to be identified for some process later on.
-    """
-    # TODO: Complete this model. Started it on the bus...
-    name = models.CharField(max_length=50, unique=True)

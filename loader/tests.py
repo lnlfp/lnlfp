@@ -110,8 +110,33 @@ class FileTestCase(TestCase):
 
         self.assertEqual(file.get_columns(), self.sample_columns)
 
+
 class FeedTestCase(TestCase):
-    # TODO: Feeds cannot be accessed except by users in their users field.
-    # TODO: They can only have unique names.
     # TODO: feed_directory_path returns an accurate path.
+    def setUp(self):
+        """
+        Set up testing with a feed to test.
+
+        :return: None
+        """
+        self.feed = Feed.objects.create(name='Test Name')
+
+    def test_str(self):
+        """
+        Over simple test to make sure __str__ works correctly.
+
+        :return: None
+        """
+        self.assertEqual(str(self.feed.name), 'Test Name')
+
+    def test_uniqueness(self):
+        """
+        Ensure an error is raised if we make multiple feeds with the same name.
+
+        :return: None
+        """
+        pass
+
+
+class ColumnTestCase(TestCase):
     pass

@@ -90,7 +90,7 @@ class File(models.Model):
         :param lst: lst, a list representing the columns in this file.
         """
 
-        self.columns = ','.join(lst)
+        self.columns = self.delimiter.join(lst)
 
     def clean(self, exclude=None):
         """

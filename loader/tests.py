@@ -23,6 +23,8 @@ class FileTestCase(TestCase):
 
         self.usable_feed.save()
 
+        self.sample_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
     def test_needs_feed(self):
         """
         Ensure that a File requires a feed
@@ -78,7 +80,7 @@ class FileTestCase(TestCase):
         """
         Ensure that get columns always returns a list.
 
-        Ensure that set_columns takes a comma separated string.
+        Ensure that set_columns takes a list. columns should then have this list joined by the delimiter.
         Ensure get_columns returns the same string split into a list.
 
         :return:
@@ -87,11 +89,26 @@ class FileTestCase(TestCase):
 
         self.assertEqual(file.get_columns(), [])
 
-        file.set_columns(['1', '2', '3', '4', '5'])
+        file.set_columns(self.sample_columns)
 
-        self.assertEqual(file.columns, '1,2,3,4,5')
+        self.assertEqual(file.columns, ','.join(self.sample_columns))
 
-        self.assertEqual(file.get_columns(), ['1','2','3','4','5'])
+        self.assertEqual(file.get_columns(), self.sample_columns)
+
+    def test_delimiter(self):
+        """
+        Ensure that columns returns with the expected delimiter given to the file. And that this does not affect get or
+        set columns.
+
+        :return: None
+        """
+        file = File(user=self.good_user, feed=self.usable_feed, file_name='test.csv', delimiter='|')
+
+        file.set_columns(self.sample_columns)
+
+        self.assertEqual(file.columns, '|'.join(self.sample_columns))
+
+        self.assertEqual(file.get_columns(), self.sample_columns)
 
 class FeedTestCase(TestCase):
     # TODO: Feeds cannot be accessed except by users in their users field.

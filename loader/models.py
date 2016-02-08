@@ -122,3 +122,12 @@ class File(models.Model):
         :return: str, identifying string for this file.
         """
         return self.upload_date.strftime('%Y%m%d') + '/' + self.file_name
+
+class Column(models.Model):
+    """
+    We need to recognise where some columns have special significance.
+
+    These may have to be identified for some process later on.
+    """
+    # TODO: Complete this model. Started it on the bus...
+    name = models.CharField(max_length=50, unique=True)

@@ -28,7 +28,15 @@ def login_to_app(request):
     # If we have reached here, the user has not registered as logged in.
     return redirect('django.contrib.auth.views.login')
 
+
+def logout_of_app(request):
+
+    logout(request)
+    return redirect('loader:login_to_app')
+
+
 def load_file(request):
+
     if not request.user.is_authenticated():
         return redirect('django.contrib.auth.views.login')
 

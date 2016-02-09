@@ -1,7 +1,10 @@
 {% load staticfiles %}
 <link rel="stylesheet" type="text/css" href="{% static 'loader/css/loader.css' %}">
 
-<div id="title">Lock 'n' Load</div>
+<div id="title">
+    <span id="title_text">Lock 'n' Load</span>
+    <a href="{% url 'loader:logout_of_app' %}" style="float:right;">Logout</a>
+</div>
 
 <form action="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -12,7 +15,14 @@
         <table id="file_outer" style="width: 100%;">
             <tr class="file_inner" style="display: table;margin: 0 auto;">
 
-                <td id="feed">{{ form.feed }}</td>
+                <td id="feed">
+                    <select id="id_feed" name="feed">
+                        <option value selected="selected" disabled>Please Select One</option>
+                        {% for feed in user.feed_set.all %}
+                        <option value="{{ feed.pk }}">{{ feed.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
                 <td id="file">{{ form.data }}</td>
                 <td id="submit">
                     <input type="submit" value="Upload"/>

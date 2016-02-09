@@ -60,6 +60,7 @@ class Column(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
     col_type = models.CharField(max_length=30)
+    comment = models.CharField(max_length=400, null=True)
 
     def __str__(self):
         """

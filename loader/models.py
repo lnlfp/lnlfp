@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
-def feed_directory_path(instance):
+def feed_directory_path(instance, filename):
     """
     Function to return an upload path for new files.
 
@@ -19,7 +19,7 @@ def feed_directory_path(instance):
     """
     return '{0}/{1}/{2}'.format(instance.feed.name,
                                 instance.upload_date.strftime('%Y%m%d'),
-                                instance.filename)
+                                filename)
 
 
 class Feed(models.Model):

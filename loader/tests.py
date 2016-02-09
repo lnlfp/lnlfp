@@ -2,9 +2,10 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from loader.models import File, Feed
+from loader.models import File, Feed, Column
 
 class FileTestCase(TestCase):
     def setUp(self):
@@ -110,23 +111,36 @@ class FileTestCase(TestCase):
 
         self.assertEqual(file.get_columns(), self.sample_columns)
 
+    def test_str(self):
+        """
+        Ensure str of the file returns the files data and name separated by a slash.
+
+        :return: None
+        """
+
+        file = File.objects.create(user=self.good_user, feed=self.usable_feed, file_name = 'test.csv')
+
+        self.assertEqual(str(file), datetime.date.today().strftime('%Y%m%d') + '/test.csv')
+
 
 class FeedTestCase(TestCase):
-    # TODO: feed_directory_path returns an accurate path.
+
     def setUp(self):
         """
         Set up testing with a feed to test.
 
         :return: None
         """
+
         self.feed = Feed.objects.create(name='Test Name')
 
     def test_str(self):
         """
-        Over simple test to make sure __str__ works correctly.
+        Ensure str of the feed returns the feeds name.
 
         :return: None
         """
+
         self.assertEqual(str(self.feed.name), 'Test Name')
 
     def test_uniqueness(self):
@@ -135,8 +149,34 @@ class FeedTestCase(TestCase):
 
         :return: None
         """
-        pass
+        with self.assertRaises(IntegrityError):
+            Feed.objects.create(name='Test Name')
 
 
 class ColumnTestCase(TestCase):
-    pass
+
+    def setUp(self):
+        """
+        setup a base column to run tests against.
+
+        :return: None
+        """
+        self.column = Column.objects.create(name='Test Col', col_type='text')
+
+    def test_Str(self):
+        """
+        Ensure str of the column returns the columns name.
+
+        :return: None
+        """
+
+        self.assertEqual(str(self.column), 'Test Col')
+
+    def test_uniqueness(self):
+        """
+        Ensure an error is raised if we make multiple columns with the same name.
+
+        :return: None
+        """
+        with self.assertRaises(IntegrityError):
+            Column.objects.create(name='Test Col', col_type='text')

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from loader.models import File, Feed, Column
+from loader.models import File, Feed, Column, feed_directory_path
 
 class FileTestCase(TestCase):
     def setUp(self):
@@ -75,7 +75,17 @@ class FileTestCase(TestCase):
         self.assertEqual(file.upload_date.date(), datetime.date.today())
 
     def test_file_path(self):
-        pass
+        """
+        Ensure that the filep ath given for a file includes the feed name, upload date and file name
+
+        :return: None
+        """
+
+        file = File.objects.create(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
+
+        self.assertEqual(feed_directory_path(file, file.file_name),
+                         '{}/{}/{}'.format(self.usable_feed.name, file.upload_date.strftime('%Y%m%d'), file.file_name))
+
 
     def test_columns(self):
         """

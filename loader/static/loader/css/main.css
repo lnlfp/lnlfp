@@ -1,0 +1,24 @@
+body{
+    margin: 0;
+}
+
+#title{
+    width: 100%;
+    height: 6vw;
+    background-color: #0097A7;
+    color: white;
+ 	box-shadow: rgba(180, 180, 180, 0.33) 1px 1px,
+    rgba(180, 180, 180, 0.33) 2px 2px,
+    rgba(180, 180, 180, 0.33) 3px 3px,
+    rgba(180, 180, 180, 0.33) 4px 4px,
+    rgba(180, 180, 180, 0.33) 5px 5px
+}
+#title_text{
+    font-size: 5vw;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+#content{
+    width:100%;
+}

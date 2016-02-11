@@ -1,12 +1,27 @@
-<form action="{% url 'loader:login_to_app' %}" method="post" accept-charset="utf-8">
-    {% csrf_token %}
-    {% for field in form %}
-        <label>{{ field.label }}</label>
-        {% if field.errors %}
-            {{ field.errors }}
-        {% endif %}
-        {{ field }}
-    {% endfor %}
-    <input type="hidden" name="next" value="{{ next }}" />
-    <input class="button small" type="submit" value="Submit"/>
-</form>
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/main.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/login.css' %}">
+
+<div id="title">
+    <span id="title_text">Lock 'n' Load</span>
+</div>
+<br/>
+<div id="content" class="main">
+    <div class="login-form">
+        <form action="{% url 'loader:login_to_app' %}" method="post" accept-charset="utf-8">
+            {% csrf_token %}
+            <div id="login_box">
+                <h1>Login</h1>
+                <input type="text" id="id_username" name="username" class="text" value="USERNAME" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'USERNAME';}">
+                <input type="password" id="id_password" name="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
+
+                <input type="hidden" name="next" value="{{ next }}" />
+                <br/>
+                <div class="submit">
+                    <input type="submit" value="LOGIN">
+                <div/>
+            </div>
+
+        </form>
+    </div>
+</div>

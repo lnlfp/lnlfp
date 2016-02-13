@@ -1,5 +1,7 @@
 body{
     margin: 0;
+    font-size: 1.3em;
+    font-family: 'Open Sans', sans-serif
 }
 
 table{
@@ -21,7 +23,6 @@ table{
 #title_text{
     font-size: 5vw;
     font-weight: bold;
-    font-family: monospace;
 }
 
 #content{
@@ -120,7 +121,7 @@ input[type="submit"]{
 	-moz-text-shadow: 0px 0px 3px #000;
 	-o-text-shadow: 0px 0px 3px #000;
 	-ms-text-shadow: 0px 0px 3px #000;
-	font-size: 20px;
+	font-size: 1.3em;
 	outline: none;
 	border: none;
 	cursor: pointer;

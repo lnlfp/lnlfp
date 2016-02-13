@@ -47,6 +47,7 @@ class Feed(models.Model):
         """
         return self.name
 
+
 class Column(models.Model):
     """
     We need to recognise where some columns have special significance.

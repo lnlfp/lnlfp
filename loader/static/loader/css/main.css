@@ -11,7 +11,8 @@ body{
     rgba(180, 180, 180, 0.33) 2px 2px,
     rgba(180, 180, 180, 0.33) 3px 3px,
     rgba(180, 180, 180, 0.33) 4px 4px,
-    rgba(180, 180, 180, 0.33) 5px 5px
+    rgba(180, 180, 180, 0.33) 5px 5px;
+    position: relative;
 }
 #title_text{
     font-size: 5vw;
@@ -21,4 +22,48 @@ body{
 
 #content{
     width:100%;
+}
+
+.logout{
+    display: block;
+    position:absolute;
+    padding-top: 0.3em;
+    right: 0;
+    bottom: 0.25em;
+	width: 10em;
+	height: 1.5em;
+	vertical-align: bottom;
+
+	background: #0097A7;
+	color: #ECECEC;
+	cursor: pointer;
+
+	font-family: 'Open Sans', sans-serif;
+	font-size: 20px;
+	font-weight:500;
+	text-align: center;
+	text-decoration: none;
+
+	transition: 0.5s;
+
+	border-radius: 5px;
+	box-shadow: inset 0px 0px 10px #666464;
+	-webkit-text-shadow: 0px 0px 3px #000;
+	-moz-text-shadow: 0px 0px 3px #000;
+	-o-text-shadow: 0px 0px 3px #000;
+	-ms-text-shadow: 0px 0px 3px #000;
+	-webkit-appearance:none;
+	-webkit-transition: 0.5s;
+	-moz-transition: 0.5s;
+	-o-transition: 0.5s;
+	-ms-transition: 0.5s;
+}
+
+.logout div{
+    vertical-align: middle;
+}
+
+.logout:hover{
+	background:#006064;
+	color:#fff;
 }

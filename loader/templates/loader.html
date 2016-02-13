@@ -4,31 +4,35 @@
 
 <div id="title">
     <span id="title_text">Lock 'n' Load</span>
-    <a class="logout" href="{% url 'loader:logout_of_app' %}" style="float:right;"><div>Logout</div></a>
+    <a class="button logout" href="{% url 'loader:logout_of_app' %}" style="float:right;"><div>Logout</div></a>
 </div>
 <div id="content">
-    <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+    <br/>
+    <br/>
+    <div class="file_form">
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
 
-        <p>{{ form.non_field_errors }}</p>
-
-            {{ form.errors }}
-            <table id="file_outer" style="width: 100%;">
-                <tr class="file_inner" style="display: table;margin: 0 auto;">
-
-                    <td id="feed">
-                        <select id="id_feed" name="feed">
-                            <option value selected="selected" disabled>Please Select One</option>
-                            {% for feed in user.feed_set.all %}
-                            <option value="{{ feed.pk }}">{{ feed.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td id="file">{{ form.data }}</td>
-                    <td id="submit">
-                        <input type="submit" value="Upload"/>
-                    </td>
-                </tr>
-            </table>
-    </form>
+            <p>{{ form.non_field_errors }}</p>
+                {{ form.errors }}
+                <table class="file_outer">
+                    <tr class="file_inner">
+                        <td id="file">{{ form.data }}</td>
+                    </tr>
+                    <tr>
+                        <td id="feed">
+                            <select id="soflow-color" name="feed">
+                                <option value selected="selected" disabled>Please Select One</option>
+                                {% for feed in user.feed_set.all %}
+                                <option value="{{ feed.pk }}">{{ feed.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td id="submit">
+                            <input type="submit" value="Upload"/>
+                        </td>
+                    </tr>
+                </table>
+        </form>
+    </div>
 </div>

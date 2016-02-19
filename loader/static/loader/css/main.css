@@ -96,7 +96,7 @@ select {
    overflow: hidden;
    padding: 0.25em 0.5em;
    text-overflow: ellipsis;
-   width: 12vw;
+   width: auto;
    outline: none;
    cursor: pointer;
 }

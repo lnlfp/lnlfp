@@ -18,16 +18,16 @@
                 {{ form.errors }}
                 <table class="file_outer">
                     <tr>
-                        <td>
+                        <td colspan="2">
                            <input type="text" id="data_text" name="data_text" class="file_upload_text" disabled style="color:#888;">
                         </td>
                         <td class="uploader">
-                            <span class="submit_button upload_button">Browse</span>
-                            <input class="data_upload" onchange="change_data_text(this.value)" id="id_data" name="data" type="file" />
+                            <span class="submit_button upload_button browse_button">Browse</span>
+                            <input class="data_upload browse_button" onchange="change_data_text(this.value)" id="id_data" name="data" type="file" />
                         </td>
                     </tr>
                     <tr>
-                        <td id="feed">
+                        <td id="feed" colspan="2">
                             <select id="soflow-color" name="feed">
                                 <option value selected disabled>Please Select A Feed</option>
                                 {% for feed in user.feed_set.all %}

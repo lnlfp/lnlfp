@@ -1,4 +1,4 @@
-import ast
+import datetime
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -17,8 +17,8 @@ def feed_directory_path(instance, filename):
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
     """
-    return '{0}/{1}/{2}'.format(instance.feed.name,
-                                instance.upload_date.strftime('%Y%m%d'),
+    return 'uploads/{0}/{1}/{2}'.format(instance.feed.name,
+                                datetime.datetime.now().strftime('%Y%m%d'),
                                 filename)
 
 

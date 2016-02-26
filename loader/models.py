@@ -18,7 +18,7 @@ def feed_directory_path(instance, filename):
     :return: str, complete filepath and name for file to be uploaded.
     """
     return 'uploads/{0}/{1}/{2}'.format(instance.feed.name,
-                                datetime.datetime.now().strftime('%Y%m%d'),
+                                datetime.datetime.now().strftime('%Y/%m/%d'),
                                 filename)
 
 

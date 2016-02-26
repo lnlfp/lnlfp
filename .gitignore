@@ -59,7 +59,7 @@ docs/_build/
 target/
 
 */migrations/*.*
-
+uploads/
 settings.py
 
 *.sqlite3

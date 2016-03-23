@@ -1,3 +1,4 @@
+import codecs
 import csv
 
 from django.contrib.auth import authenticate, login, logout
@@ -53,28 +54,32 @@ def load_file(request):
         return redirect('django.contrib.auth.views.login')
 
     if request.method == 'POST':
-        print(dir(request.FILES['data']))
-        print(request.FILES['data'].name)
         new_upload = File(data=request.FILES['data'],
                           file_name=request.FILES['data'].name,
                           user=request.user,
                           feed=Feed.objects.get(pk=request.POST['feed']))
         new_upload.save()
 
+        return view_file(request, new_upload.pk)
+
     form = FileForm()
     return render(request, 'loader.html', {'form':form})
 
-def view_file(request, file):
-    with open(file.data, 'r') as data_file:
-        reader = csv.reader(data_file, delimiter=file.delimiter)
-        data = []
 
-        row_num = 0
+def view_file(request, file_pk):
 
-        for row in reader:
-            data.append(row)
-            row_num += 1
-            if row_num >= 10:
-                break
+    file_to_load = File.objects.get(pk=file_pk)
+
+    data_file = file_to_load.data.file
+    reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
+    data = []
+
+    row_num = 0
+
+    for row in reader:
+        data.append(row)
+        row_num += 1
+        if row_num >= 10:
+            break
 
     return render(request, 'table.html', {'data': data})

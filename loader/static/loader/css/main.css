@@ -76,40 +76,6 @@ table{
     vertical-align: middle;
 }
 
-select {
-   -webkit-appearance: button;
-   -webkit-border-radius: 2em;
-   -webkit-user-select: none;
-   -moz-border-radius: 2em;
-   border-radius: 2em;
-   box-shadow: inset 0px 0px 10px #666464;
-   -webkit-text-shadow: 0px 0px 3px #000;
-   -moz-text-shadow: 0px 0px 3px #000;
-   -o-text-shadow: 0px 0px 3px #000;
-   -ms-text-shadow: 0px 0px 3px #000;
-   background-color: #0097A7;
-   color: #ECECEC;
-   background-image: url('../img/select_arrow.png');
-   background-position: 97% center;
-   background-repeat: no-repeat;
-   font-size: inherit;
-   overflow: hidden;
-   padding: 0.25em 0.5em;
-   text-overflow: ellipsis;
-   width: auto;
-   outline: none;
-   cursor: pointer;
-}
-
-select:hover{
-	-webkit-transition: 0.5s;
-	-moz-transition: 0.5s;
-	-o-transition: 0.5s;
-	-ms-transition: 0.5s;
-	background-color:#006064;
-	color:#fff;
-}
-
 .submit_button{
 	width: auto;
 	padding: 3% 20% 3% 20%;

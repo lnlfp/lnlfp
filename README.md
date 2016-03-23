@@ -2,6 +2,22 @@
 
 Lionel is a Django based web-app which takes delimited files and runs standard (user-defined) processes on them within a database.
 
+## setup
+
+We will eventually build a script for this but it isn't a focus right now.
+
+For now you need python 3.4+.
+
+Run pip install -r requirements.txt
+
+Copy the example_settings.py file into a settings.py file and give it a secret key.
+
+To run:
+
+python manage.py runserver
+
+You will then be able to access the program from localhost:8000/loader
+
 ## History
 
 We found at work that a lot of what we were doing was loading new data feeds and adapting them to existing processes via standard ETL.

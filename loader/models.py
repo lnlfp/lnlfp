@@ -92,6 +92,8 @@ class File(models.Model):
     #  File Based Info  #
     #####################
 
+    has_header = models.BooleanField(default=True)
+
     data = models.FileField(upload_to=feed_directory_path, blank=True)
     file_name = models.CharField(null=False, max_length=100)
     upload_date = models.DateTimeField(auto_now_add=True)

@@ -1,6 +1,9 @@
 {% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/bootstrap.min.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'loader/css/main.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'loader/css/loader.css' %}" />
+<script type="text/javascript" src="{% static 'loader/js/jquery-2.2.2.min.js' %}" ></script>
+<script type="text/javascript" src="{% static 'loader/js/bootstrap.min.js' %}" ></script>
 <script type="text/javascript" src="{% static 'loader/js/loader.js' %}" ></script>
 
 <div id="title">
@@ -18,17 +21,20 @@
                 {{ form.errors }}
                 <table class="file_outer">
                     <tr>
-                        <td colspan="2">
-                           <input type="text" id="data_text" name="data_text" class="file_upload_text" disabled style="color:#888;">
-                        </td>
-                        <td class="uploader">
-                            <span class="submit_button upload_button browse_button">Browse</span>
-                            <input class="data_upload browse_button" onchange="change_data_text(this.value)" id="id_data" name="data" type="file" />
+                        <td colspan="3">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <span class="btn btn-primary btn-file">
+                                        Browse&hellip; <input type="file" id="id_data" name="data" multiple>
+                                    </span>
+                                </span>
+                                <input type="text" class="form-control" readonly>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td id="feed" colspan="2">
-                            <select id="soflow-color" name="feed">
+                            <select class="form-control" name="feed">
                                 <option value selected disabled>Please Select A Feed</option>
                                 {% for feed in user.feed_set.all %}
                                 <option value="{{ feed.pk }}">{{ feed.name }}</option>
@@ -36,7 +42,7 @@
                             </select>
                         </td>
                         <td>
-                            <input class="submit_button" type="submit" value="Upload"/>
+                            <input class="btn btn-primary btn-block" type="submit" value="Upload"/>
                         </td>
                     </tr>
                 </table>

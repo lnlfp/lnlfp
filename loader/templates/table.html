@@ -1,0 +1,22 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/main.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'loader/css/bootstrap.min.css' %}" />
+<script type="text/javascript" src="{% static 'loader/js/bootstrap.min.js' %}" ></script>
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    {% for col in row %}
+                    <td>
+                        {{ col }}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

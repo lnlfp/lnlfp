@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -61,3 +63,18 @@ def load_file(request):
 
     form = FileForm()
     return render(request, 'loader.html', {'form':form})
+
+def view_file(request, file):
+    with open(file.data, 'r') as data_file:
+        reader = csv.reader(data_file, delimiter=file.delimiter)
+        data = []
+
+        row_num = 0
+
+        for row in reader:
+            data.append(row)
+            row_num += 1
+            if row_num >= 10:
+                break
+
+    return render(request, 'table.html', {'data': data})

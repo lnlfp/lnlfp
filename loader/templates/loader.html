@@ -10,26 +10,28 @@
                     <tr>
                         <td colspan="3">
                             <div class="input-group">
+                                <input type="text" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <span class="btn btn-primary btn-file">
+                                    <span class="btn btn-primary btn-file btn-block">
                                         Browse&hellip; <input type="file" id="id_data" name="data" multiple>
                                     </span>
                                 </span>
-                                <input type="text" class="form-control" readonly>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <td id="feed" colspan="2">
-                            <select class="form-control" name="feed">
-                                <option value selected disabled>Please Select A Feed</option>
-                                {% for feed in user.feed_set.all %}
-                                <option value="{{ feed.pk }}">{{ feed.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td>
-                            <input class="btn btn-primary btn-block" type="submit" value="Upload"/>
+                        <td id="feed" colspan="3">
+                            <div class="input-group">
+                                <select class="form-control" name="feed">
+                                    <option value selected disabled>Please Select A Feed</option>
+                                    {% for feed in user.feed_set.all %}
+                                    <option value="{{ feed.pk }}">{{ feed.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="input-group-btn">
+                                    <input class="btn btn-primary btn-block" type="submit" value="Upload"/>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -37,6 +39,17 @@
     </div>
     <style>
 
+    .input-group-btn{
+        width: 30%;
+    }
+
+    .form-control{
+        width: 70%;
+    }
+
+    .input-group{
+        width: 100%;
+    }
 
     .file_form{
         width:40vw;

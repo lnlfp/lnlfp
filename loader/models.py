@@ -1,5 +1,6 @@
 import datetime
 import os
+import subprocess
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -21,6 +22,22 @@ def feed_directory_path(instance, filename):
     return os.path.join('uploads',
                         instance.feed.name,
                         datetime.datetime.now().strftime('%Y/%m/%d'),
+                        filename)
+
+
+def proc_directory_path(instance, filename):
+    """
+    Function to return an upload path for new files.
+
+    Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
+
+    Joining these with slashes and the filename itself gives the filepath.
+
+    :param instance: File model instance, used to receive the feed name and the upload date.
+    :param filename: str, name of the file being uploaded.
+    :return: str, complete filepath and name for file to be uploaded.
+    """
+    return os.path.join('procedures',
                         filename)
 
 
@@ -125,9 +142,6 @@ class File(models.Model):
     def clean(self, exclude=None):
         """
         We need to do some model validation to ensure the User given is acceptable.
-
-        :param exclude:
-        :return: None
         """
         if self.user not in self.feed.users.all():
             raise ValidationError('This User is not authorised to upload files to this feed!')
@@ -152,3 +166,86 @@ class File(models.Model):
         :return: str, identifying string for this file.
         """
         return self.upload_date.strftime('%Y%m%d') + '/' + self.file_name
+
+
+class Procedure(models.Model):
+    """
+    Model to hold a runnable procedure for a file.
+    """
+
+    #####################
+    #   Language Info   #
+    #####################
+
+    BASH = 'Bash'
+    PYTHON = 'Python'
+    ORACLE = 'Oracle'
+    POSTGRES = 'Postgres'
+    MYSQL = 'MySQL'
+
+    LANGUAGE_CHOICES = ((BASH, 'Bash'),
+                        (PYTHON, 'Python'),
+                        (ORACLE, 'Oracle'),
+                        (POSTGRES, 'Postgres'),
+                        (MYSQL, 'MySQL')
+                        )
+
+    LANGUAGE_EXTENSIONS = {BASH: '.sh',
+                           PYTHON: '.py',
+                           ORACLE: '.sql',
+                           POSTGRES: '.sql',
+                           MYSQL: '.sql'
+                           }
+
+    LANGUAGE_CALL = {BASH: [],
+                     PYTHON: ['python'],
+                     ORACLE: ['sqlplus'],
+                     POSTGRES: ['psql'],
+                     MYSQL: ['mysql']
+                     }
+
+    language = models.CharField(max_length=10,
+                                choices=LANGUAGE_CHOICES,
+                                default=BASH)
+
+    #####################
+    #  Procedure Info   #
+    #####################
+
+    comments = models.CharField(max_length=400, blank=False)
+
+    procedure = models.FileField(upload_to=proc_directory_path)
+
+    def run(self, *args):
+        """
+        Call up a subprocess to run our procedures.
+        :param args: tuple, list of arguments to add onto the call
+        """
+        subprocess.call(self.LANGUAGE_CALL[self.language] + list(args))
+
+    def clean(self, exclude=None):
+        """
+        We need to do some model validation to ensure the procedure has the right extension and language
+        """
+        if not self.procedure.name.endswith(self.LANGUAGE_EXTENSIONS[self.language]):
+            raise ValidationError('The file extension does not match the language picked!')
+
+    def save(self, *args, **kwargs):
+        """
+        This is called before committing.
+
+        We need to use it to call the clean method which will validate relevant fields.
+
+        :param args: arbitrary list of arguments for super method.
+        :param kwargs: arbitrary dictionary or arguments for super method
+        :return: result of super function
+        """
+        self.full_clean()
+        return super(File, self).save(*args, **kwargs)
+
+    def __str__(self):
+        """
+        :return: str, the script name and it's description
+        """
+
+        return self.procedure.name + '\n\nDescription:\n' + self.comments

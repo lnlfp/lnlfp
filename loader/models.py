@@ -21,7 +21,7 @@ def feed_directory_path(instance, filename):
     """
     return os.path.join('uploads',
                         instance.feed.name,
-                        datetime.datetime.now().strftime('%Y/%m/%d'),
+                        datetime.datetime.now().strftime('%Y-%m-%d'),
                         filename)
 
 
@@ -38,7 +38,7 @@ def proc_directory_path(instance, filename):
     :return: str, complete filepath and name for file to be uploaded.
     """
     return os.path.join('procedures',
-                        instance.language
+                        instance.language,
                         filename)
 
 
@@ -213,6 +213,8 @@ class Procedure(models.Model):
     #  Procedure Info   #
     #####################
 
+    name = models.CharField(max_length=20, blank=False)
+
     comments = models.CharField(max_length=400, blank=False)
 
     procedure = models.FileField(upload_to=proc_directory_path)
@@ -242,7 +244,7 @@ class Procedure(models.Model):
         :return: result of super function
         """
         self.full_clean()
-        return super(File, self).save(*args, **kwargs)
+        return super(Procedure, self).save(*args, **kwargs)
 
     def __str__(self):
         """

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from loader.models import Feed, File, Column
+from loader.models import Feed, File, Column, Procedure
 
 
 class FeedAdmin(admin.ModelAdmin):
@@ -34,6 +34,18 @@ class ColumnAdmin(admin.ModelAdmin):
     list_display = ('name', 'col_type',)
 
 
+class ProcedureAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None,
+         {'fields': ['name',
+                     'language',
+                     'comments',
+                     'procedure']}
+         )
+    ]
+    list_display = ('name', 'language', 'comments')
+
 admin.site.register(Feed, FeedAdmin)
 admin.site.register(File, FileAdmin)
 admin.site.register(Column, ColumnAdmin)
+admin.site.register(Procedure, ProcedureAdmin)

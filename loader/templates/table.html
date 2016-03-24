@@ -1,44 +1,50 @@
 {% extends "base.html" %}
-{% load static %}
-{% block extra_head %}
-    <link rel="stylesheet" type="text/css" href="{% static 'loader/css/table.css' %}" />
-{% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
-            <tbody>
-                <tr>
-                    {% for col in column_choice %}
-                    <th>
-                        {{ col|safe }}
-                    </th>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <tbody>
+                    <tr>
+                        {% for col in column_choice %}
+                        <th>
+                            {{ col|safe }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                    {% if header %}
+                    <tr>
+                        {% for item in header %}
+                        <th>
+                            {{ item }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                    {% for row in data %}
+                    <tr>
+                        {% for col in row %}
+                        <td>
+                            {{ col }}
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% if header %}
-                <tr>
-                    {% for item in header %}
-                    <th>
-                        {{ item }}
-                    </th>
-                    {% endfor %}
-                </tr>
-                {% endif %}
-                {% for row in data %}
-                <tr>
-                    {% for col in row %}
-                    <td>
-                        {{ col }}
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
+        <select class="form-control pull-right" name="procedure">
+            <option value selected disabled>Please Select A Procedure</option>
+            {% for proc in procedures %}
+            <option value="{{ proc.pk }}">{{ proc.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
 </div>
-<script>
+<style>
     .table-responsive{
     overflow-x:scroll;
     }
@@ -46,5 +52,5 @@
     td, th{
         min-width:11em;
     }
-</script>
+</style>
 {% endblock content %}

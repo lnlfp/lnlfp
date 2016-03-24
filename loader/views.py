@@ -7,7 +7,7 @@ from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
 
 from loader.forms import FileForm
-from loader.models import File, Feed, Column
+from loader.models import File, Feed, Column, Procedure
 
 def login_to_app(request):
     """
@@ -57,16 +57,18 @@ def load_file(request):
         return redirect('django.contrib.auth.views.login')
 
     if request.method == 'POST':
+        # Call robs function
         new_upload = File(data=request.FILES['data'],
                           file_name=request.FILES['data'].name,
                           user=request.user,
                           feed=Feed.objects.get(pk=request.POST['feed']))
         new_upload.save()
 
-        return view_file(request, new_upload.pk)
+        return redirect('loader:view_file', new_upload.pk)
 
     form = FileForm()
-    return render(request, 'loader.html', {'form':form, 'user': request.user})
+
+    return render(request, 'loader.html', {'form': form, 'user': request.user})
 
 
 def view_file(request, file_pk):
@@ -117,7 +119,10 @@ def view_file(request, file_pk):
         if row_num >= 10:
             break
 
+    procedures = Procedure.objects.all()
+
     return render(request, 'table.html', {'data': data,
                                           'column_choice': column_choice_row,
                                           'columns': special_cols,
-                                          'header': header})
+                                          'header': header,
+                                          'procedures': procedures})

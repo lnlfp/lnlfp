@@ -64,4 +64,8 @@ settings.py
 
 *.sqlite3
 
+# Pycharm stuff
+
+.idea/*.*
+
 # Created by .ignore support plugin (hsz.mobi)

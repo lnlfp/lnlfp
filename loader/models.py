@@ -38,6 +38,7 @@ def proc_directory_path(instance, filename):
     :return: str, complete filepath and name for file to be uploaded.
     """
     return os.path.join('procedures',
+                        instance.language
                         filename)
 
 

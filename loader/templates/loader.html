@@ -1,18 +1,12 @@
+{% extends "base.html" %}
 {% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'loader/css/bootstrap.min.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'loader/css/main.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'loader/css/loader.css' %}" />
-<script type="text/javascript" src="{% static 'loader/js/jquery-2.2.2.min.js' %}" ></script>
-<script type="text/javascript" src="{% static 'loader/js/bootstrap.min.js' %}" ></script>
-<script type="text/javascript" src="{% static 'loader/js/loader.js' %}" ></script>
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'loader/css/loader.css' %}" />
+    <script type="text/javascript" src="{% static 'loader/js/loader.js' %}" ></script>
+{% endblock %}
 
-<div id="title">
-    <span id="title_text">Lionel</span>
-    <a class="button logout" href="{% url 'loader:logout_of_app' %}" style="float:right;"><div>Logout</div></a>
-</div>
-<div id="content">
-    <br/>
-    <br/>
+
+{% block content %}
     <div class="file_form">
         <form action="" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -48,4 +42,40 @@
                 </table>
         </form>
     </div>
-</div>
+    <style>
+
+
+    .file_form{
+        width:40vw;
+        margin: 0 auto;
+        padding: 5% 0 5% 0;
+        background:#eee;
+        -webkit-border-radius: 0.4em;
+        -o-border-radius: 0.4em;
+        -moz-border-radius: 0.4em;
+    }
+
+    .btn-file {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-file input[type=file] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: 100px;
+      text-align: right;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      background: red;
+      cursor: inherit;
+      display: block;
+    }
+    input[readonly] {
+      background-color: white !important;
+      cursor: text !important;
+    }
+    </style>
+{% endblock content %}

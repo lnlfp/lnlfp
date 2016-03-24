@@ -1,27 +1,22 @@
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'loader/css/main.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'loader/css/login.css' %}">
-
-<div id="title">
-    <span id="title_text">Lionel</span>
-</div>
-<br/>
-<div id="content" class="main">
+{% extends "base.html" %}
+{% block content %}
     <div class="login-form">
         <form action="{% url 'loader:login_to_app' %}" method="post" accept-charset="utf-8">
             {% csrf_token %}
-            <div id="login_box">
-                <h1>Login</h1>
-                <input type="text" id="id_username" name="username" class="text" value="USERNAME" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'USERNAME';}">
-                <input type="password" id="id_password" name="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}">
+            <div class="jumbotron file_outer">
+            <div class="form-group">
+                <h3>Login</h3>
+
+                <label for="id_username">Username</label>
+                <input type="text" id="id_username" name="username" class="form-control" placeholder="username">
+                <label for="id_password">Password</label>
+                <input type="password" id="id_password" name="password" class="form-control" placeholder="Password">
 
                 <input type="hidden" name="next" value="{{ next }}" />
                 <br/>
-                <div class="submit">
-                    <input type="submit" value="LOGIN">
-                <div/>
             </div>
-
+            <button type="submit" class="btn btn-primary">Log In</button>
+            </div>
         </form>
     </div>
-</div>
+{% endblock content %}

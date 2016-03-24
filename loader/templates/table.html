@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load static %}
 {% block extra_head %}
-    <link rel="stylesheet" type="text/css" href="'ststic/loader/css/table.css'" />
+    <link rel="stylesheet" type="text/css" href="{% static 'loader/css/table.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -37,4 +38,13 @@
         </table>
     </div>
 </div>
+<script>
+    .table-responsive{
+    overflow-x:scroll;
+    }
+
+    td, th{
+        min-width:11em;
+    }
+</script>
 {% endblock content %}

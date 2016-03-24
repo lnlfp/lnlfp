@@ -104,3 +104,8 @@ table{
 	-ms-transition: 0.5s;
 	transition: 0.5s;
 }
+
+.file_outer{
+        margin: 0 auto;
+        width: 50%;
+    }

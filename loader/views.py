@@ -66,7 +66,7 @@ def load_file(request):
         return view_file(request, new_upload.pk)
 
     form = FileForm()
-    return render(request, 'loader.html', {'form':form})
+    return render(request, 'loader.html', {'form':form, 'user': request.user})
 
 
 def view_file(request, file_pk):

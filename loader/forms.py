@@ -50,7 +50,7 @@ class ProcedureForm(ModelForm):
 
         cleaned_data = super(ProcedureForm, self).clean()
 
-        if not self.procedure.name.endswith(self.LANGUAGE_EXTENSIONS[self.language]):
+        if not cleaned_data['procedure'].name.endswith(Procedure.LANGUAGE_EXTENSIONS[cleaned_data['language'].language]):
             raise ValidationError('The file extension does not match the language picked!')
 
         cleaned_data['user'] = self.user

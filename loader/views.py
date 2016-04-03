@@ -28,7 +28,7 @@ def login_to_app(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect('loader:load_file')
+                return redirect(request.POST.get('next', 'loader:load_file'))
     # If we have reached here, the user has not registered as logged in.
     return redirect('django.contrib.auth.views.login')
 
@@ -44,6 +44,7 @@ def logout_of_app(request):
     return redirect('loader:login_to_app')
 
 
+@login_required
 def load_file(request):
     """
     Basic view holding the details for a file browsing screen pre-upload.
@@ -53,8 +54,8 @@ def load_file(request):
     :param request: HTTP request holding the user.
     :return: render: the loader template.
     """
-    if not request.user.is_authenticated():
-        return redirect('django.contrib.auth.views.login')
+    #if not request.user.is_authenticated():
+    #    return redirect('django.contrib.auth.views.login')
 
     if request.method == 'POST':
         # Call robs function
@@ -72,6 +73,7 @@ def load_file(request):
     return render(request, 'loader.html', {'form': form, 'user': request.user})
 
 
+@login_required
 def view_file(request, file_pk):
     """
 

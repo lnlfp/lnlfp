@@ -3,9 +3,10 @@ import csv
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
-
+from django.views.generic import View
 from loader.forms import FileForm
 from loader.models import File, Column, Procedure
 
@@ -45,19 +46,25 @@ def logout_of_app(request):
     return redirect('loader:login_to_app')
 
 
-@login_required
-def load_file(request):
-    """
-    Basic view holding the details for a file browsing screen pre-upload.
+class LoadFileView(LoginRequiredMixin, View):
+    def get(self, request):
+        """
+        Load up the file uploader form.
 
-    Also handles files and returns the view_file view on POST.
+        :param request: HTTP request holding the user.
+        :return: render: the loader template.
+        """
+        form = FileForm(request.user)
 
-    :param request: HTTP request holding the user.
-    :return: render: the loader template.
-    """
+        return render(request, 'loader.html', {'form': form})
 
-    if request.method == 'POST':
-        # Call robs function
+    def post(self, request):
+        """
+        Handle the post data from an input file form.
+
+        :param request: HTTP request holding the user.
+        :return: render: the loader template.
+        """
         form = FileForm(request.user, request.POST, request.FILES)
 
         if form.is_valid():
@@ -65,11 +72,6 @@ def load_file(request):
             new_upload.save()
 
             return redirect('loader:view_file', new_upload.pk)
-
-    else:
-        form = FileForm(request.user)
-
-    return render(request, 'loader.html', {'form': form, 'user': request.user})
 
 
 @login_required

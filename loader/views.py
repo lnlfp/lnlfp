@@ -7,7 +7,8 @@ from django.db.models.functions import Lower
 from django.shortcuts import render, redirect
 
 from loader.forms import FileForm
-from loader.models import File, Feed, Column, Procedure
+from loader.models import File, Column, Procedure
+
 
 def login_to_app(request):
     """
@@ -54,8 +55,6 @@ def load_file(request):
     :param request: HTTP request holding the user.
     :return: render: the loader template.
     """
-    #if not request.user.is_authenticated():
-    #    return redirect('django.contrib.auth.views.login')
 
     if request.method == 'POST':
         # Call robs function

@@ -103,7 +103,7 @@ class File(models.Model):
     #####################
 
     user = models.ForeignKey(User)
-    feed =  models.ForeignKey(Feed)
+    feed = models.ForeignKey(Feed)
     special_columns = models.ManyToManyField(Column)
 
     #####################
@@ -198,32 +198,14 @@ class Procedure(models.Model):
 
     procedure = models.FileField(upload_to=proc_directory_path)
 
+    user = models.ForeignKey(User)  # Store whoever designed the procedure so we can track ownership.
+
     def run(self, *args):
         """
         Call up a subprocess to run our procedures.
         :param args: tuple, list of arguments to add onto the call
         """
         subprocess.call(self.LANGUAGE_CALL[self.language] + list(args))
-
-    def clean(self, exclude=None):
-        """
-        We need to do some model validation to ensure the procedure has the right extension and language
-        """
-        if not self.procedure.name.endswith(self.LANGUAGE_EXTENSIONS[self.language]):
-            raise ValidationError('The file extension does not match the language picked!')
-
-    def save(self, *args, **kwargs):
-        """
-        This is called before committing.
-
-        We need to use it to call the clean method which will validate relevant fields.
-
-        :param args: arbitrary list of arguments for super method.
-        :param kwargs: arbitrary dictionary or arguments for super method
-        :return: result of super function
-        """
-        self.full_clean()
-        return super(Procedure, self).save(*args, **kwargs)
 
     def __str__(self):
         """

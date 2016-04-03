@@ -1,5 +1,5 @@
 from django.forms import ModelForm, ValidationError
-from loader.models import File
+from loader.models import File, Procedure
 
 
 class FileForm(ModelForm):
@@ -30,6 +30,28 @@ class FileForm(ModelForm):
 
         if not data:
             raise ValidationError('No file input given.')
+
+        cleaned_data['user'] = self.user
+
+        return cleaned_data
+
+
+class ProcedureForm(ModelForm):
+    class Meta:
+        model = Procedure
+        exclude = ['user']
+
+    def __init__(self, user, *args, **kwargs):
+        super(ProcedureForm, self).__init__(*args, **kwargs)
+
+        self.user = user
+
+    def clean(self):
+
+        cleaned_data = super(ProcedureForm, self).clean()
+
+        if not self.procedure.name.endswith(self.LANGUAGE_EXTENSIONS[self.language]):
+            raise ValidationError('The file extension does not match the language picked!')
 
         cleaned_data['user'] = self.user
 

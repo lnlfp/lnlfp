@@ -14,7 +14,10 @@
             <h1>
                 Lionel
                 {% if user.is_authenticated %}
-                <a class="btn btn-primary pull-right" href="{% url 'loader:logout_of_app' %}">Logout</a>
+                <div class="btn-group pull-right">
+                <a class="btn btn-primary" href="{% url 'loader:user_home' %}">Home</a>
+                <a class="btn btn-primary" href="{% url 'loader:logout_of_app' %}">Logout</a>
+                </div>
                 {% endif %}
             </h1>
 

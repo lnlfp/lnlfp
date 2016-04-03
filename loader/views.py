@@ -5,10 +5,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.functions import Lower
-from django.shortcuts import render, redirect
-from django.views.generic import View
+from django.shortcuts import render, redirect, Http404
+from django.views.generic import View, ListView, CreateView, UpdateView
 from loader.forms import FileForm
-from loader.models import File, Column, Procedure
+from loader.models import File, Column, Procedure, Feed
 
 
 def login_to_app(request):
@@ -30,7 +30,7 @@ def login_to_app(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect(request.POST.get('next', 'loader:load_file'))
+                return redirect(request.POST.get('next', 'loader:user_home'))
     # If we have reached here, the user has not registered as logged in.
     return redirect('django.contrib.auth.views.login')
 
@@ -46,29 +46,84 @@ def logout_of_app(request):
     return redirect('loader:login_to_app')
 
 
+class UserHomeView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        """
+        Build up the user home page.
+
+        :param request: HTTP request holding the user.
+        :return: render: the home page template.
+        """
+        context = {}
+
+        return render(request, 'home.html', context)
+
+
+class FeedListView(LoginRequiredMixin, ListView):
+    """
+    Allow a user to view the feeds they have access to.
+    """
+    model = Feed
+    context_object_name = 'user_feeds'
+    template_name = 'feeds.html'
+
+    def get_queryset(self):
+        """
+        Limit the feeds to the logged in user
+        :return: QuerySet, the feeds the user has access to.
+        """
+        return self.request.user.feed_set.all()
+
+
+class FeedCreate(LoginRequiredMixin, CreateView):
+    model = Feed
+    fields = '__all__'
+    template_name = 'feed_create_form.html'
+
+
+class FeedUpdate(LoginRequiredMixin, UpdateView):
+    model = Feed
+    fields = '__all__'
+    template_name = 'feed_update_form.html'
+
+    def get(self, *args, **kwargs):
+        feed = Feed.objects.get(pk=kwargs['pk'])
+
+        if self.request.user in feed.users.all():
+            return super(FeedUpdate, self).get(*args, **kwargs)
+        else:
+            return Http404('Sorry you cannot access this feed.')
+
+
 class LoadFileView(LoginRequiredMixin, View):
-    def get(self, request):
+    """
+    Handle the file loading views here.
+    """
+    FORM_CLASS = FileForm
+    MODEL = File
+
+    def get(self, request, *args, **kwargs):
         """
         Load up the file uploader form.
 
         :param request: HTTP request holding the user.
         :return: render: the loader template.
         """
-        form = FileForm(request.user)
+        form = self.FORM_CLASS(request.user)
 
         return render(request, 'loader.html', {'form': form})
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """
         Handle the post data from an input file form.
 
         :param request: HTTP request holding the user.
-        :return: render: the loader template.
+        :return: redirect: a page showing the new file.
         """
-        form = FileForm(request.user, request.POST, request.FILES)
+        form = self.FORM_CLASS(request.user, request.POST, request.FILES)
 
         if form.is_valid():
-            new_upload = File(**form.cleaned_data)
+            new_upload = self.MODEL(**form.cleaned_data)
             new_upload.save()
 
             return redirect('loader:view_file', new_upload.pk)

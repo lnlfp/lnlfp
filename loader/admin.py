@@ -21,7 +21,7 @@ class FileAdmin(admin.ModelAdmin):
          )
     ]
 
-    list_display = ['user', 'upload_date', 'file_name']
+    list_display = ['user', 'upload_date', 'data']
 
 
 class ColumnAdmin(admin.ModelAdmin):

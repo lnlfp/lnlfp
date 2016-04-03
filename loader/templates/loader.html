@@ -5,10 +5,9 @@
             {% csrf_token %}
 
             <p>{{ form.non_field_errors }}</p>
-                {{ form.errors }}
                 <table class="file_outer">
                     <tr>
-                        <td>
+                        <td colspan="3">
                             <div class="input-group">
                                 <input type="text" class="form-control" readonly>
                                 <span class="input-group-btn">
@@ -20,10 +19,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>
+                        <td id="feed" colspan="3">
                             <div class="input-group">
                                 <select class="form-control" name="feed">
-                                    <option value selected disabled>Please Select A Feed</option>
+                                    <option value selected disabled>Select A Feed</option>
                                     {% for feed in user.feed_set.all %}
                                     <option value="{{ feed.pk }}">{{ feed.name }}</option>
                                     {% endfor %}

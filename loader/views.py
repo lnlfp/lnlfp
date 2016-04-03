@@ -58,15 +58,16 @@ def load_file(request):
 
     if request.method == 'POST':
         # Call robs function
-        new_upload = File(data=request.FILES['data'],
-                          file_name=request.FILES['data'].name,
-                          user=request.user,
-                          feed=Feed.objects.get(pk=request.POST['feed']))
-        new_upload.save()
+        form = FileForm(request.user, request.POST, request.FILES)
 
-        return redirect('loader:view_file', new_upload.pk)
+        if form.is_valid():
+            new_upload = File(**form.cleaned_data)
+            new_upload.save()
 
-    form = FileForm()
+            return redirect('loader:view_file', new_upload.pk)
+
+    else:
+        form = FileForm(request.user)
 
     return render(request, 'loader.html', {'form': form, 'user': request.user})
 

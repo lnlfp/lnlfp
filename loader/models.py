@@ -113,7 +113,6 @@ class File(models.Model):
     has_header = models.BooleanField(default=True)
 
     data = models.FileField(upload_to=feed_directory_path, blank=True)
-    file_name = models.CharField(null=False, max_length=100)
     upload_date = models.DateTimeField(auto_now_add=True)
 
     delimiter = models.CharField(null=True, max_length=1, default=',')
@@ -140,33 +139,13 @@ class File(models.Model):
 
         self.columns = self.delimiter.join(lst)
 
-    def clean(self, exclude=None):
-        """
-        We need to do some model validation to ensure the User given is acceptable.
-        """
-        if self.user not in self.feed.users.all():
-            raise ValidationError('This User is not authorised to upload files to this feed!')
-
-    def save(self, *args, **kwargs):
-        """
-        This is called before committing.
-
-        We need to use it to call the clean method which will validate relevant fields.
-
-        :param args: arbitrary list of arguments for super method.
-        :param kwargs: arbitrary dictionary or arguments for super method
-        :return: result of super function
-        """
-        self.full_clean()
-        return super(File, self).save(*args, **kwargs)
-
     def __str__(self):
         """
         concatenate upload date and file name to provide rough storage location.
 
         :return: str, identifying string for this file.
         """
-        return self.upload_date.strftime('%Y%m%d') + '/' + self.file_name
+        return self.upload_date.strftime('%Y%m%d') + '/' + self.file.name
 
 
 class Procedure(models.Model):

@@ -4,6 +4,7 @@ import csv
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
 from django.views.generic import View, ListView, CreateView, UpdateView
@@ -76,23 +77,39 @@ class FeedListView(LoginRequiredMixin, ListView):
 
 
 class FeedCreate(LoginRequiredMixin, CreateView):
+    """
+    Manage feed creation.
+    """
     model = Feed
     fields = '__all__'
     template_name = 'feed_create_form.html'
 
+    def get_success_url(self):
+        return reverse('loader:update_feed', kwargs={'pk': self.object.id})
+
 
 class FeedUpdate(LoginRequiredMixin, UpdateView):
+    """
+    Manage feed updates
+    """
     model = Feed
     fields = '__all__'
     template_name = 'feed_update_form.html'
 
     def get(self, *args, **kwargs):
+        """
+        Ensure that the person accessing this feed is allowed access.
+        :return: Http response, 404 or successful feed update form.
+        """
         feed = Feed.objects.get(pk=kwargs['pk'])
 
         if self.request.user in feed.users.all():
             return super(FeedUpdate, self).get(*args, **kwargs)
         else:
             return Http404('Sorry you cannot access this feed.')
+
+    def get_success_url(self):
+        return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
 class LoadFileView(LoginRequiredMixin, View):

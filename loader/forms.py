@@ -3,6 +3,13 @@ from loader.models import File, Procedure
 
 
 class FileForm(ModelForm):
+    """
+    Manage the creation of files here.
+
+    We are only interested in uploading the file and attaching it to a feed and user.
+
+    We may do some preemptive analysis. But most of the column definitions come later.
+    """
     class Meta:
         model = File
         fields = ['data', 'feed']
@@ -14,6 +21,10 @@ class FileForm(ModelForm):
     def clean(self):
         """
         We need to do some model validation to ensure the User given is acceptable.
+
+        We also need to make sure we actually have a file.
+
+        :return: dict, the data needed for the model.
         """
 
         cleaned_data = super(FileForm, self).clean()
@@ -26,9 +37,7 @@ class FileForm(ModelForm):
         else:
             raise ValidationError('No valid feed given')
 
-        data = cleaned_data.get('data')
-
-        if not data:
+        if not cleaned_data.get('data'):
             raise ValidationError('No file input given.')
 
         cleaned_data['user'] = self.user
@@ -37,6 +46,9 @@ class FileForm(ModelForm):
 
 
 class ProcedureForm(ModelForm):
+    """
+    Monitor the creation of a procedure.
+    """
     class Meta:
         model = Procedure
         exclude = ['user']
@@ -47,7 +59,13 @@ class ProcedureForm(ModelForm):
         self.user = user
 
     def clean(self):
+        """
+        We need to make sure that the procedure extension matches that of the language given.
 
+        Also need to add the user to the cleaned_data.
+
+        :return: dict, the data needed for the model.
+        """
         cleaned_data = super(ProcedureForm, self).clean()
 
         if not cleaned_data['procedure'].name.endswith(Procedure.LANGUAGE_EXTENSIONS[cleaned_data['language']]):

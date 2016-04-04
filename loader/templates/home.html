@@ -2,6 +2,9 @@
 {% block content %}
     <h2>{{ user.username }}</h2>
     <div class="jumbotron">
+        <a href="{% url 'loader:user_files' %}" class="btn btn-primary btn-block">View Files</a>
+        <br>
+        <br>
         <a href="{% url 'loader:user_feeds' %}" class="btn btn-primary btn-block">Manage Feeds</a>
         <br>
         <br>

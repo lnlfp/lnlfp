@@ -144,7 +144,7 @@ class File(models.Model):
 
         :return: str, identifying string for this file.
         """
-        return self.upload_date.strftime('%Y%m%d') + '/' + self.file.name
+        return self.upload_date.strftime('%Y/%m/%d') + '/' + os.path.split(self.data.name)[-1]
 
 
 class Procedure(models.Model):

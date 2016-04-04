@@ -61,6 +61,22 @@ class UserHomeView(LoginRequiredMixin, View):
         return render(request, 'home.html', context)
 
 
+class FileListView(LoginRequiredMixin, ListView):
+    """
+    Allow a user to view the feeds they have access to.
+    """
+    model = Feed
+    context_object_name = 'user_files'
+    template_name = 'files.html'
+
+    def get_queryset(self):
+        """
+        Limit the feeds to the logged in user
+        :return: QuerySet, the feeds the user has access to.
+        """
+        return self.request.user.file_set.all()
+
+
 class FeedListView(LoginRequiredMixin, ListView):
     """
     Allow a user to view the feeds they have access to.
@@ -181,14 +197,14 @@ class LoadFileView(LoginRequiredMixin, View):
 
 
 @login_required
-def view_file(request, file_pk):
+def view_file(request, pk):
     """
 
     :param request: HTTP request.
     :param file_pk: pk of the file we need to load into the view.
     :return:
     """
-    file_to_load = File.objects.get(pk=file_pk)
+    file_to_load = File.objects.get(pk=pk)
 
     special_cols = Column.objects.all().order_by(Lower('name'))
 

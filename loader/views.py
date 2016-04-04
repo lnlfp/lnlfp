@@ -4,6 +4,7 @@ import csv
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
@@ -74,6 +75,39 @@ class FeedListView(LoginRequiredMixin, ListView):
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.feed_set.all()
+
+
+class UserCreate(LoginRequiredMixin, CreateView):
+    model = User
+    fields = '__all__'
+    template_name = 'user_create_form.html'
+
+    def get_success_url(self):
+        return reverse('loader:update_user', kwargs={'pk': self.object.id})
+
+
+class UserUpdate(LoginRequiredMixin, UpdateView):
+    """
+    Manage feed updates
+    """
+    model = User
+    fields = '__all__'
+    template_name = 'user_update_form.html'
+
+    def get(self, *args, **kwargs):
+        """
+        Ensure that the person accessing this feed is allowed access.
+        :return: Http response, 404 or successful feed update form.
+        """
+        user = User.objects.get(pk=kwargs['pk'])
+
+        if self.request.user.pk == user.pk:
+            return super(UserUpdate, self).get(*args, **kwargs)
+        else:
+            return Http404('Sorry you cannot access this user.')
+
+    def get_success_url(self):
+        return reverse('loader:update_user', kwargs={'pk': self.object.id})
 
 
 class FeedCreate(LoginRequiredMixin, CreateView):

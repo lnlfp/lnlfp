@@ -200,6 +200,8 @@ class LoadFileView(LoginRequiredMixin, View):
 
             return redirect('loader:view_file', new_upload.pk)
 
+        return render(request, 'loader.html', {'form': form})
+
 
 @login_required
 def view_file(request, pk):

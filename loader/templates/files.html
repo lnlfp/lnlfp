@@ -14,13 +14,20 @@
     <a href="{% url 'loader:load_file' %}" class="btn btn-primary">New File</a>
     <br>
     <h3>Uploaded Files</h3>
-    <table>
+    <table class="table">
         <tbody>
+            <th>File Name</th>
+            <th>Upload Date</th>
+            <th>Feed</th>
+            <th>User</th>
             {% for file in user_files %}
             <tr>
                 <td>
-                    <a href="{% url 'loader:view_file' pk=file.pk %}" class="btn btn-sm btn-block btn-primary">{{ file }}</a>
+                    <a href="{% url 'loader:view_file' pk=file.pk %}">{{ file }}</a>
                 </td>
+                <td>{{ file.upload_date }}</td>
+                <td><a href="{% url 'loader:update_feed' pk=file.feed.pk %}">{{ file.feed }}</a></td>
+                <td>{{ file.user }}</td>
             </tr>
             {% endfor %}
         </tbody>

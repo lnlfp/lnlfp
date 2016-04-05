@@ -15,7 +15,7 @@ class FeedAdmin(admin.ModelAdmin):
 class FileAdmin(admin.ModelAdmin):
     fieldsets = [
         (None,
-         {'fields': ['file_name',
+         {'fields': ['data',
                      'feed',
                      'user']}
          )

@@ -32,7 +32,12 @@ def login_to_app(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect(request.POST.get('next', 'loader:user_home'))
+
+                if request.POST.get('next'):
+                    return redirect(request.POST.get('next', 'loader:user_home'))
+                else:
+                    return redirect('loader:user_home')
+
     # If we have reached here, the user has not registered as logged in.
     return redirect('django.contrib.auth.views.login')
 

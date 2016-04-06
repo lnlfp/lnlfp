@@ -12,6 +12,9 @@ urlpatterns = [
     url(r'^feeds/create/$', views.FeedCreate.as_view(), name='create_feed'),
     url(r'^users/(?P<pk>[0-9]+)/$', views.UserUpdate.as_view(), name='update_user'),
     url(r'^users/create/$', views.UserCreate.as_view(), name='create_user'),
+    url(r'^procedures/$', views.ProcedureListView.as_view(), name='list_procs'),
+    url(r'^procedures/(?P<pk>[0-9]+)/$', views.ProcedureUpdate.as_view(), name='update_proc'),
+    url(r'^procedures/create/$', views.ProcedureCreate.as_view(), name='create_proc'),
     url(r'^files/(?P<pk>[0-9]+)/$', views.view_file, name='view_file'),
     url(r'^new_file/$', views.LoadFileView.as_view(), name='load_file'),
 ]

@@ -167,6 +167,43 @@ class FeedUpdate(LoginRequiredMixin, UpdateView):
         return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
+class ProcedureListView(LoginRequiredMixin, ListView):
+    """
+    Allow a user to view the feeds they have access to.
+    """
+    model = Procedure
+    context_object_name = 'user_procedures'
+    template_name = 'procedures.html'
+
+    def get_queryset(self):
+        """
+        Limit the feeds to the logged in user
+        :return: QuerySet, the feeds the user has access to.
+        """
+        return self.request.user.procedure_set.all()
+
+
+class ProcedureCreate(LoginRequiredMixin, CreateView):
+    model = Procedure
+    fields = '__all__'
+    template_name = 'proc_create_form.html'
+
+    def get_success_url(self):
+        return reverse('loader:update_proc', kwargs={'pk': self.object.id})
+
+
+class ProcedureUpdate(LoginRequiredMixin, UpdateView):
+    """
+    Manage feed updates
+    """
+    model = Procedure
+    fields = '__all__'
+    template_name = 'proc_update_form.html'
+
+    def get_success_url(self):
+        return reverse('loader:update_proc', kwargs={'pk': self.object.id})
+
+
 class LoadFileView(LoginRequiredMixin, View):
     """
     Handle the file loading views here.

@@ -5,6 +5,8 @@ import subprocess
 from django.contrib.auth.models import User
 from django.db import models
 
+from loader import plugins
+
 
 def feed_directory_path(instance, filename):
     """
@@ -156,32 +158,11 @@ class Procedure(models.Model):
     #   Language Info   #
     #####################
 
-    BASH = 'Bash'
-    PYTHON = 'Python'
-    ORACLE = 'Oracle'
-    POSTGRES = 'Postgres'
-    MYSQL = 'MySQL'
+    LANGUAGE_CHOICES = ((plugin.LANGUAGE, plugin.LANGUAGE) for plugin in plugins.plugins)
 
-    LANGUAGE_CHOICES = ((BASH, 'Bash'),
-                        (PYTHON, 'Python'),
-                        (ORACLE, 'Oracle'),
-                        (POSTGRES, 'Postgres'),
-                        (MYSQL, 'MySQL')
-                        )
+    LANGUAGE_EXTENSIONS = {plugin.LANGUAGE: plugin.EXTENSION for plugin in plugins.plugins}
 
-    LANGUAGE_EXTENSIONS = {BASH: '.sh',
-                           PYTHON: '.py',
-                           ORACLE: '.sql',
-                           POSTGRES: '.sql',
-                           MYSQL: '.sql'
-                           }
-
-    LANGUAGE_CALL = {BASH: [],
-                     PYTHON: ['python'],
-                     ORACLE: ['sqlplus'],
-                     POSTGRES: ['psql'],
-                     MYSQL: ['mysql']
-                     }
+    LANGUAGE_INTERPRETER = {plugin.LANGUAGE: plugin for plugin in plugins.plugins}
 
     language = models.CharField(max_length=10,
                                 choices=LANGUAGE_CHOICES,
@@ -204,7 +185,7 @@ class Procedure(models.Model):
         Call up a subprocess to run our procedures.
         :param args: tuple, list of arguments to add onto the call
         """
-        subprocess.call(self.LANGUAGE_CALL[self.language] + list(args))
+        self.LANGUAGE_INTERPRETER[self.language].run(self.procedure.file, list(args))
 
     def __str__(self):
         """

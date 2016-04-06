@@ -1,6 +1,6 @@
 import subprocess
 
-from .interpreter import Interpreter
+from ._interpreter import Interpreter
 
 
 class PythonInterpreter(Interpreter):

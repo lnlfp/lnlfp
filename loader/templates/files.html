@@ -26,7 +26,9 @@
                     <a href="{% url 'loader:view_file' pk=file.pk %}">{{ file }}</a>
                 </td>
                 <td>{{ file.upload_date }}</td>
-                <td><a href="{% url 'loader:update_feed' pk=file.feed.pk %}">{{ file.feed }}</a></td>
+                <td>
+                    <a href="{% url 'loader:update_feed' pk=file.feed.pk %}">{{ file.feed }}</a>
+                </td>
                 <td>{{ file.user }}</td>
             </tr>
             {% endfor %}

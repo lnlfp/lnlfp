@@ -7,17 +7,23 @@ from ._interpreter import Interpreter
 
 
 def is_valid_plugin(plugin):
+    """
+    Ensure a plugin is valid - i.e. it is a file and doesn't start with _ (e.g. __init__).
+
+    :param plugin: str, filepath to a package.
+    :return: bool, is it valid?
+    """
     return os.path.isfile(plugin) and not os.path.basename(plugin).startswith('_')
 
-package_dir = 'loader.plugins'
+_PACKAGE_DIR = 'loader.plugins'
 
-packages_to_import = [package for package in glob.glob(os.path.dirname(__file__) + '/*.py') if is_valid_plugin(package)]
+_PACKAGES_TO_IMPORT = [package for package in glob.glob(os.path.dirname(__file__) + '/*.py') if is_valid_plugin(package)]
 
-packages = [importlib.import_module('.' + os.path.basename(package)[:-3], package_dir) for package in packages_to_import]
+_PACKAGES = [importlib.import_module('.' + os.path.basename(package)[:-3], _PACKAGE_DIR) for package in _PACKAGES_TO_IMPORT]
 
-plugins = []
+PLUGINS = []
 
-for package in packages:
+for package in _PACKAGES:
     for value in package.__dict__.values():
         if inspect.isclass(value) and issubclass(value, Interpreter) and value is not Interpreter:
-            plugins.append(value)
+            PLUGINS.append(value)

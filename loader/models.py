@@ -158,11 +158,11 @@ class Procedure(models.Model):
     #   Language Info   #
     #####################
 
-    LANGUAGE_CHOICES = ((plugin.LANGUAGE, plugin.LANGUAGE) for plugin in plugins.plugins)
+    LANGUAGE_CHOICES = ((plugin.LANGUAGE, plugin.LANGUAGE) for plugin in plugins.PLUGINS)
 
-    LANGUAGE_EXTENSIONS = {plugin.LANGUAGE: plugin.EXTENSION for plugin in plugins.plugins}
+    LANGUAGE_EXTENSIONS = {plugin.LANGUAGE: plugin.EXTENSION for plugin in plugins.PLUGINS}
 
-    LANGUAGE_INTERPRETER = {plugin.LANGUAGE: plugin for plugin in plugins.plugins}
+    LANGUAGE_INTERPRETER = {plugin.LANGUAGE: plugin for plugin in plugins.PLUGINS}
 
     language = models.CharField(max_length=10,
                                 choices=LANGUAGE_CHOICES,

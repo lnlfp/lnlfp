@@ -234,6 +234,8 @@ class LoadFileView(LoginRequiredMixin, View):
         if form.is_valid():
             new_upload = self.MODEL(**form.cleaned_data)
             new_upload.save()
+            new_upload.get_table_info()
+            new_upload.save()
 
             return redirect('loader:view_file', new_upload.pk)
 
@@ -295,4 +297,5 @@ def view_file(request, pk):
                                           'column_choice': column_choice_row,
                                           'columns': special_cols,
                                           'header': header,
-                                          'procedures': procedures})
+                                          'procedures': procedures,
+                                          'file': file_to_load})

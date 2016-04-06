@@ -165,8 +165,7 @@ class Procedure(models.Model):
     LANGUAGE_INTERPRETER = {plugin.LANGUAGE: plugin for plugin in plugins.PLUGINS}
 
     language = models.CharField(max_length=10,
-                                choices=LANGUAGE_CHOICES,
-                                default=BASH)
+                                choices=LANGUAGE_CHOICES)
 
     #####################
     #  Procedure Info   #

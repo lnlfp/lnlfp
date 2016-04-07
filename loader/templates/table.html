@@ -4,6 +4,9 @@
 <div class="container">
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <span>delimiter: {{ file.delimiter }}</span>
+        <span>has_header: {{ file.has_header }}</span>
+        <span>terminator: {{ file.terminator }}</span>
         <div class="table-responsive">
             <table class="table table-striped table-hover table-bordered">
                 <tbody>

@@ -1,6 +1,8 @@
+import csv
 import datetime
 import json
 import os
+import pandas
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -117,6 +119,7 @@ class File(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
 
     delimiter = models.CharField(null=True, max_length=1, default=',')
+    terminator = models.CharField(null=True, max_length=4, default='\n')
 
     #####################
     #   Database Info   #
@@ -146,6 +149,21 @@ class File(models.Model):
         """
 
         self.columns = self.delimiter.join(lst)
+
+    def get_first_lines(self):
+        with open(self.data.name) as data_file:
+            data = [next(data_file) for _ in range(10)]
+
+        return data
+
+    def get_table_info(self):
+        dialect = csv.Sniffer().sniff(''.join(self.get_first_lines()))
+
+        self.delimiter = dialect.delimiter
+
+        self.terminator = dialect.lineterminator
+
+        self.has_header = csv.Sniffer().has_header(''.join(self.get_first_lines()))
 
     def __str__(self):
         """

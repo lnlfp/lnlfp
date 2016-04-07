@@ -1,6 +1,6 @@
 import datetime
+import json
 import os
-import subprocess
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -117,6 +117,13 @@ class File(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
 
     delimiter = models.CharField(null=True, max_length=1, default=',')
+
+    #####################
+    #   Database Info   #
+    #####################
+
+    table = models.CharField(max_length=30, blank=True)
+
     columns = models.TextField(null=True, blank=True)
 
     def get_columns(self):
@@ -179,12 +186,21 @@ class Procedure(models.Model):
 
     user = models.ForeignKey(User)  # Store whoever designed the procedure so we can track ownership.
 
-    def run(self, *args):
+    def run(self, file, *args):
         """
         Call up a subprocess to run our procedures.
         :param args: tuple, list of arguments to add onto the call
         """
-        self.LANGUAGE_INTERPRETER[self.language].run(self.procedure.file, list(args))
+
+        file_args = {'table': file.table,
+                     'upload_date':file.upload_date,
+                     'columns': file.columns,
+                     'user': file.user.name,
+                     'user_email': file.user.email}
+
+        json_args = json.dumps(file_args)
+
+        self.LANGUAGE_INTERPRETER[self.language].run(self.procedure.file, json_args, *args)
 
     def __str__(self):
         """

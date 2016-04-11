@@ -1,5 +1,6 @@
 import abc
 
+
 class Interpreter:
     """
     Base interpreter class.

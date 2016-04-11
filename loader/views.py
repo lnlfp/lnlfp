@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
 from django.views.generic import View, ListView, CreateView, UpdateView
-from loader.forms import FileForm
+from loader.forms import FileForm, ProcedureForm
 from loader.models import File, Column, Procedure, Feed
 
 
@@ -39,7 +39,7 @@ def login_to_app(request):
                     return redirect('loader:user_home')
 
     # If we have reached here, the user has not registered as logged in.
-    return redirect('django.contrib.auth.views.login')
+    return redirect('login')
 
 
 def logout_of_app(request):
@@ -184,12 +184,23 @@ class ProcedureListView(LoginRequiredMixin, ListView):
 
 
 class ProcedureCreate(LoginRequiredMixin, CreateView):
+    form_class = ProcedureForm
     model = Procedure
-    fields = '__all__'
     template_name = 'proc_create_form.html'
 
     def get_success_url(self):
         return reverse('loader:update_proc', kwargs={'pk': self.object.id})
+
+    def get_form_kwargs(self):
+        initial = super(ProcedureCreate, self).get_form_kwargs()
+        initial['user'] = self.request.user
+
+        return initial
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.save()
+        return super(ProcedureCreate, self).form_valid(form)
 
 
 class ProcedureUpdate(LoginRequiredMixin, UpdateView):
@@ -242,60 +253,71 @@ class LoadFileView(LoginRequiredMixin, View):
         return render(request, 'loader.html', {'form': form})
 
 
-@login_required
-def view_file(request, pk):
-    """
+class FileView(LoginRequiredMixin, View):
+    def get(self, request, pk, *args, **kwargs):
+        """
+        Parse the file and load on screen.
 
-    :param request: HTTP request.
-    :param file_pk: pk of the file we need to load into the view.
-    :return:
-    """
-    file_to_load = File.objects.get(pk=pk)
+        :param request: HTTP request.
+        :param file_pk: pk of the file we need to load into the view.
+        :return: HTTP response, the loaded table
+        """
+        file_to_load = File.objects.get(pk=pk)
 
-    special_cols = Column.objects.all().order_by(Lower('name'))
+        special_cols = Column.objects.all().order_by(Lower('name'))
 
-    data_file = file_to_load.data.file
-    reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
-    data = []
+        data_file = file_to_load.data.file
+        reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
+        data = []
 
-    row_num = 0
+        row_num = 0
 
-    if file_to_load.has_header:
-        header = next(reader)
-        no_cols = len(header)
-    else:
-        header = None
-        data.append(next(reader))
-        row_num += 1
-        no_cols = len(data[0])
+        if file_to_load.has_header:
+            header = next(reader)
+            no_cols = len(header)
+        else:
+            header = None
+            data.append(next(reader))
+            row_num += 1
+            no_cols = len(data[0])
 
-    choices = ""
-    for col in special_cols:
-        choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
+        choices = ""
+        for col in special_cols:
+            choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
 
-    template_choice = """
+        template_choice = """
 <select class="form-control" name="col_select_{col_name}">
     <option value selected disabled>Special Column</option>
     <option value="None">None</option>
     {choices}
 </select>"""
 
-    column_choice_row = []
-    for idx in range(no_cols):
-        if header:
-            column_choice_row.append(template_choice.format(col_name=header[idx], choices=choices))
+        column_choice_row = []
+        for idx in range(no_cols):
+            if header:
+                column_choice_row.append(template_choice.format(col_name=header[idx], choices=choices))
 
-    for row in reader:
-        data.append(row)
-        row_num += 1
-        if row_num >= 10:
-            break
+        for row in reader:
+            data.append(row)
+            row_num += 1
+            if row_num >= 10:
+                break
 
-    procedures = Procedure.objects.all()
+        procedures = Procedure.objects.all()
 
-    return render(request, 'table.html', {'data': data,
-                                          'column_choice': column_choice_row,
-                                          'columns': special_cols,
-                                          'header': header,
-                                          'procedures': procedures,
-                                          'file': file_to_load})
+        return render(request, 'table.html', {'data': data,
+                                              'column_choice': column_choice_row,
+                                              'columns': special_cols,
+                                              'header': header,
+                                              'procedures': procedures,
+                                              'file': file_to_load})
+
+    def post(self, request, pk, *args, **kwargs):
+        """
+        Handle and run the proc we want to use.
+
+        :param request: HTTP request.
+        :param file_pk: pk of the file we need to load into the view.
+        :return: HTTP response, the loaded table
+        """
+        return self.get(request, pk, *args, **kwargs)

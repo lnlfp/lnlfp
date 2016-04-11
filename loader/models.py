@@ -5,7 +5,7 @@ import os
 import pandas
 
 from django.contrib.auth.models import User
-from django.db import models
+from django.db import models, connection
 
 from loader import plugins
 
@@ -165,6 +165,14 @@ class File(models.Model):
 
         self.has_header = csv.Sniffer().has_header(''.join(self.get_first_lines()))
 
+    def open_cursor(self):
+        """
+        Return a cursor to the database
+
+        :return: cursor object.
+        """
+        return connection.cursor()
+
     def __str__(self):
         """
         concatenate upload date and file name to provide rough storage location.
@@ -207,6 +215,8 @@ class Procedure(models.Model):
     def run(self, file, *args):
         """
         Call up a subprocess to run our procedures.
+
+        :param file: File obj, the file we are running this on.
         :param args: tuple, list of arguments to add onto the call
         """
 

@@ -73,4 +73,6 @@ class ProcedureForm(ModelForm):
 
         cleaned_data['user'] = self.user
 
+        print(cleaned_data, self.user.id)
+
         return cleaned_data

@@ -10,7 +10,8 @@ class PythonInterpreter(Interpreter):
     LANGUAGE = 'Python'
     EXTENSION = '.py'
 
-    def run(self, proc, *args):
+    @staticmethod
+    def run(proc, *args):
         """
         Run a python script with the given args.
 
@@ -18,12 +19,17 @@ class PythonInterpreter(Interpreter):
         :param args: list of arguments to pass to the command line.
         :return: str, stdoutput from the process.
         """
-        process = ['python', proc.procedure.name] + args
+
+        process = ['python', proc.procedure.name] + list(args)
 
         running = subprocess.Popen(process, stdout=subprocess.PIPE)
+
+        output = []
 
         while True:  # While this is running give out the output.
             outp = running.stdout.readline()
             if not outp:
                 break
-            yield outp
+            output.append(outp)
+
+        return output

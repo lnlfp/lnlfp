@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from loader.models import File, Feed, Column, feed_directory_path
 
+
 class FileTestCase(TestCase):
     def setUp(self):
         """
@@ -33,7 +34,7 @@ class FileTestCase(TestCase):
         :return: None
         """
         with self.assertRaises(Feed.DoesNotExist):
-            File.objects.create(user=self.good_user, file_name='test.csv')
+            File.objects.create(user=self.good_user)
 
     def test_needs_user(self):
         """
@@ -42,16 +43,7 @@ class FileTestCase(TestCase):
         :return: None
         """
         with self.assertRaises(User.DoesNotExist):
-            File.objects.create(feed=self.usable_feed, file_name='test.csv')
-
-    def test_needs_file_name(self):
-        """
-        Ensure a File requires a file_name.
-
-        :return: None
-        """
-        with self.assertRaises(ValidationError):
-            File.objects.create(feed=self.usable_feed, user=self.good_user)
+            File.objects.create(feed=self.usable_feed)
 
     def test_authorised_user(self):
         """
@@ -59,7 +51,7 @@ class FileTestCase(TestCase):
 
         :return: None
         """
-        f_good = File(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
+        f_good = File(feed=self.usable_feed, user=self.good_user)
         f_good.clean()
         with self.assertRaises(ValidationError):
             f_bad = File(feed=self.usable_feed, user=self.bad_user)
@@ -71,7 +63,7 @@ class FileTestCase(TestCase):
 
         :return: None
         """
-        file = File.objects.create(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
+        file = File.objects.create(feed=self.usable_feed, user=self.good_user)
         self.assertEqual(file.upload_date.date(), datetime.date.today())
 
     def test_file_path(self):
@@ -81,11 +73,10 @@ class FileTestCase(TestCase):
         :return: None
         """
 
-        file = File.objects.create(feed=self.usable_feed, user=self.good_user, file_name='test.csv')
+        file = File.objects.create(feed=self.usable_feed, user=self.good_user, data=self.file)
 
-        self.assertEqual(feed_directory_path(file, file.file_name),
+        self.assertEqual(feed_directory_path(file, file.data.name),
                          '{}/{}/{}'.format(self.usable_feed.name, file.upload_date.strftime('%Y%m%d'), file.file_name))
-
 
     def test_columns(self):
         """

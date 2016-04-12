@@ -320,4 +320,13 @@ class FileView(LoginRequiredMixin, View):
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """
+
+        proc = Procedure.objects.get(pk=request.POST.get('procedure'))
+
+        file_to_run = File.objects.get(pk=pk)
+
+        output = proc.run(file_to_run)
+
+        print(output)
+
         return self.get(request, pk, *args, **kwargs)

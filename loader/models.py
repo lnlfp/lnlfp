@@ -221,14 +221,14 @@ class Procedure(models.Model):
         """
 
         file_args = {'table': file.table,
-                     'upload_date':file.upload_date,
+                     'upload_date':file.upload_date.isoformat(),
                      'columns': file.columns,
-                     'user': file.user.name,
+                     'user': file.user.username,
                      'user_email': file.user.email}
 
         json_args = json.dumps(file_args)
 
-        self.LANGUAGE_INTERPRETER[self.language].run(self.procedure.file, json_args, *args)
+        self.LANGUAGE_INTERPRETER[self.language].run(self, json_args, *args)
 
     def __str__(self):
         """

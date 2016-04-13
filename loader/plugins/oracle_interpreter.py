@@ -20,7 +20,7 @@ class OracleInterpreter(Interpreter):
         :return: str, stdoutput from the process.
         """
 
-        process = ['sqlplus inbound/*@s1 @', proc.procedure.name] + list(args)
+        process = ['sqlplus', 'inbound/*@s1', '@' + proc.procedure.name] + list(args)
 
         running = subprocess.Popen(process, stdout=subprocess.PIPE)
 

@@ -5,12 +5,27 @@
     <a href="{% url 'loader:create_proc' %}" class="btn btn-primary">New Procedure</a>
     <br>
     <h3>Update Procedure:</h3>
-    <table>
+    <table class="table">
         <tbody>
+            <th>
+                Procedure Name
+            </th>
+            <th>
+                Procedure Description
+            </th>
+            <th>
+                Procedure Creator
+            </th>
             {% for proc in user_procedures %}
             <tr>
                 <td>
-                    <a href="{% url 'loader:update_proc' pk=proc.pk %}" class="btn btn-sm btn-block btn-primary">{{ proc.name }}</a>
+                    <a href="{% url 'loader:update_proc' pk=proc.pk %}">{{ proc.name }}</a>
+                </td>
+                <td>
+                    {{ proc.comments }}
+                </td>
+                <td>
+                    {{ proc.user }}
                 </td>
             </tr>
             {% endfor %}

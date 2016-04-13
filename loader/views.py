@@ -197,6 +197,15 @@ class ProcedureCreate(LoginRequiredMixin, CreateView):
 
         return initial
 
+    def get_context_data(self, **kwargs):
+        ctx = super(ProcedureCreate, self).get_context_data(**kwargs)
+
+        langs = [x[0] for x in ctx['form'].fields['language'].choices if x[0] != '']
+
+        ctx['langs'] = langs
+
+        return ctx
+
     def form_valid(self, form):
         form.instance.user = self.request.user
         form.instance.save()

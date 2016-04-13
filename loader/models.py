@@ -13,11 +13,8 @@ from loader import plugins
 def feed_directory_path(instance, filename):
     """
     Function to return an upload path for new files.
-
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
-
     Joining these with slashes and the filename itself gives the filepath.
-
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -31,11 +28,8 @@ def feed_directory_path(instance, filename):
 def proc_directory_path(instance, filename):
     """
     Function to return an upload path for new files.
-
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
-
     Joining these with slashes and the filename itself gives the filepath.
-
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -65,7 +59,6 @@ class Feed(models.Model):
     def __str__(self):
         """
         Return name of feed for when it is represented.
-
         :return: str, name of feed
         """
         return self.name
@@ -74,7 +67,6 @@ class Feed(models.Model):
 class Column(models.Model):
     """
     We need to recognise where some columns have special significance.
-
     These may have to be identified for some process later on.
     """
 
@@ -89,7 +81,6 @@ class Column(models.Model):
     def __str__(self):
         """
         Return name of column for when it is represented.
-
         :return: str, name of column.
         """
 
@@ -132,7 +123,6 @@ class File(models.Model):
     def get_columns(self):
         """
         Return file column headers as a list.
-
         :return: list, list of column header
         """
         if self.columns:
@@ -144,7 +134,6 @@ class File(models.Model):
     def set_columns(self, lst):
         """
         Take a list of columns and set the columns property to a string representing this.
-
         :param lst: lst, a list representing the columns in this file.
         """
 
@@ -168,7 +157,6 @@ class File(models.Model):
     def open_cursor(self):
         """
         Return a cursor to the database
-
         :return: cursor object.
         """
         return connection.cursor()
@@ -176,7 +164,6 @@ class File(models.Model):
     def __str__(self):
         """
         concatenate upload date and file name to provide rough storage location.
-
         :return: str, identifying string for this file.
         """
         return os.path.split(self.data.name)[-1]
@@ -215,7 +202,6 @@ class Procedure(models.Model):
     def run(self, file, *args):
         """
         Call up a subprocess to run our procedures.
-
         :param file: File obj, the file we are running this on.
         :param args: tuple, list of arguments to add onto the call
         """

@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2>{{ user.username }}</h2>
-    <div class="jumbotron">
+    <div class="col-md-1"></div><h2 class="vertical-center">{{ user.username }}</h2>
+    <div class="col-md-1"></div>
+    <div class="well col-md-4" style="margin: 0 auto;">
+        <a href="{% url 'loader:load_file' %}" class="btn btn-primary btn-block">Upload File</a>
+        <br>
+        <br>
         <a href="{% url 'loader:user_files' %}" class="btn btn-primary btn-block">View Files</a>
         <br>
         <br>
@@ -11,12 +15,10 @@
         <a href="{% url 'loader:list_procs' %}" class="btn btn-primary btn-block">Manage Procedures</a>
         <br>
         <br>
-        <a href="{% url 'loader:load_file' %}" class="btn btn-primary btn-block">Upload File</a>
-        <br>
-        <br>
         <a href="{% url 'loader:create_user' %}" class="btn btn-primary btn-block">Add User</a>
         <br>
         <br>
         <a href="{% url 'loader:update_user' pk=user.pk %}" class="btn btn-primary btn-block">Profile Settings</a>
     </div>
+    <div class="col-md-7"></div>
 {% endblock content %}

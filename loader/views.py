@@ -295,7 +295,7 @@ class FileView(LoginRequiredMixin, View):
             choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
 
         template_choice = """
-<select class="form-control" name="col_select_{col_name}">
+<select class="form-control" name="col_select_{col_num}">
     <option value selected disabled>Special Column</option>
     <option value="None">None</option>
     {choices}
@@ -304,7 +304,7 @@ class FileView(LoginRequiredMixin, View):
         column_choice_row = []
         for idx in range(no_cols):
             if header:
-                column_choice_row.append(template_choice.format(col_name=header[idx], choices=choices))
+                column_choice_row.append(template_choice.format(col_num=idx, choices=choices))
 
         for row in reader:
             data.append(row)
@@ -329,6 +329,8 @@ class FileView(LoginRequiredMixin, View):
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """
+
+        print(request.POST)
 
         proc = Procedure.objects.get(pk=request.POST.get('procedure'))
 

@@ -2,14 +2,13 @@ import codecs
 import csv
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
 from django.views.generic import View, ListView, CreateView, UpdateView
-from loader.forms import FileForm, ProcedureForm
+from loader.forms import FileForm, ProcedureForm, ValidationError
 from loader.models import File, Column, Procedure, Feed
 
 
@@ -330,14 +329,41 @@ class FileView(LoginRequiredMixin, View):
         :return: HTTP response, the loaded table
         """
 
-        print(request.POST)
+        proc_pk = request.POST.get('procedure')
 
-        proc = Procedure.objects.get(pk=request.POST.get('procedure'))
+        if proc_pk:
+            proc = Procedure.objects.get(pk=proc_pk)
+        else:
+            raise ValidationError('You need to select a procedure to run.')
 
         file_to_run = File.objects.get(pk=pk)
 
+        no_cols = len(file_to_run.get_first_lines(1)[0].split(file_to_run.delimiter))
+
+        cols = self.get_columns(request.POST, no_cols)
+
+        file_to_run.set_columns(cols)
+
+        file_to_run.save()
+
         output = proc.run(file_to_run)
 
-        print(output)
-
         return self.get(request, pk, *args, **kwargs)
+
+    def get_columns(self, data, no_cols):
+        """
+        Run through the POST data to get all the column data.
+
+        :param data: dict, request.POST data.
+        :param no_cols: int, number of columns in table.
+        :return: lst, lst of special columns.
+        """
+
+        cols = [None] * no_cols
+
+        for key in data:
+            if key.startswith('col_select'):
+                if data[key] != 'None':
+                    cols[key.split('_')[-1]] = data[key]
+
+        return cols

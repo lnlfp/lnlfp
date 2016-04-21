@@ -2,7 +2,7 @@ import csv
 import datetime
 import json
 import os
-import pandas
+#import pandas
 
 from django.contrib.auth.models import User
 from django.db import models, connection
@@ -212,7 +212,7 @@ class Procedure(models.Model):
                      'user': file.user.username,
                      'user_email': file.user.email}
 
-        json_args = json.dumps(file_args)
+        json_args = json.dumps(file_args, separators=(',', ':'))
 
         self.LANGUAGE_INTERPRETER[self.language].run(self, json_args, *args)
 

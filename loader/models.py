@@ -126,8 +126,7 @@ class File(models.Model):
         :return: list, list of column header
         """
         if self.columns:
-            if self.columns.split(self.delimiter):
-                return self.columns.split(self.delimiter)
+            return json.loads(self.columns)
 
         return []
 
@@ -137,11 +136,11 @@ class File(models.Model):
         :param lst: lst, a list representing the columns in this file.
         """
 
-        self.columns = self.delimiter.join(lst)
+        self.columns = json.dumps(lst)
 
-    def get_first_lines(self):
+    def get_first_lines(self, num=10):
         with open(self.data.name) as data_file:
-            data = [next(data_file) for _ in range(10)]
+            data = [next(data_file) for _ in range(num)]
 
         return data
 

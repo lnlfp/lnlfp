@@ -9,6 +9,9 @@ from loader.models import File, Feed, Column, feed_directory_path
 
 
 class FileTestCase(TestCase):
+    """
+    Test cases for the File Model.
+    """
     def setUp(self):
         """
         Need to set up a few base users and a feed.
@@ -125,7 +128,9 @@ class FileTestCase(TestCase):
 
 
 class FeedTestCase(TestCase):
-
+    """
+    Test cases for the Feed model.
+    """
     def setUp(self):
         """
         Set up testing with a feed to test.
@@ -155,7 +160,9 @@ class FeedTestCase(TestCase):
 
 
 class ColumnTestCase(TestCase):
-
+    """
+    Test cases for the column model.
+    """
     def setUp(self):
         """
         setup a base column to run tests against.

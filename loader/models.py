@@ -2,7 +2,6 @@ import csv
 import datetime
 import json
 import os
-#import pandas
 
 from django.contrib.auth.models import User
 from django.db import models, connection
@@ -15,6 +14,7 @@ def feed_directory_path(instance, filename):
     Function to return an upload path for new files.
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
     Joining these with slashes and the filename itself gives the filepath.
+
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -30,6 +30,7 @@ def proc_directory_path(instance, filename):
     Function to return an upload path for new files.
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
     Joining these with slashes and the filename itself gives the filepath.
+
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -59,6 +60,7 @@ class Feed(models.Model):
     def __str__(self):
         """
         Return name of feed for when it is represented.
+
         :return: str, name of feed
         """
         return self.name
@@ -81,6 +83,7 @@ class Column(models.Model):
     def __str__(self):
         """
         Return name of column for when it is represented.
+
         :return: str, name of column.
         """
 
@@ -123,6 +126,7 @@ class File(models.Model):
     def get_columns(self):
         """
         Return file column headers as a list.
+
         :return: list, list of column header
         """
         if self.columns:
@@ -133,18 +137,28 @@ class File(models.Model):
     def set_columns(self, lst):
         """
         Take a list of columns and set the columns property to a string representing this.
+
         :param lst: lst, a list representing the columns in this file.
         """
 
         self.columns = json.dumps(lst)
 
     def get_first_lines(self, num=10):
+        """
+        Open the file and return the first few lines decided by num.
+
+        :param num: int, the number of lines to be returned.
+        :return: lst[str], the list of lines to be returned.
+        """
         with open(self.data.name) as data_file:
             data = [next(data_file) for _ in range(num)]
 
         return data
 
     def get_table_info(self):
+        """
+        Do some initial sniffing to understand the format of a file.
+        """
         dialect = csv.Sniffer().sniff(''.join(self.get_first_lines()))
 
         self.delimiter = dialect.delimiter
@@ -156,6 +170,7 @@ class File(models.Model):
     def open_cursor(self):
         """
         Return a cursor to the database
+
         :return: cursor object.
         """
         return connection.cursor()
@@ -163,6 +178,7 @@ class File(models.Model):
     def __str__(self):
         """
         concatenate upload date and file name to provide rough storage location.
+
         :return: str, identifying string for this file.
         """
         return os.path.split(self.data.name)[-1]
@@ -201,6 +217,7 @@ class Procedure(models.Model):
     def run(self, file, *args):
         """
         Call up a subprocess to run our procedures.
+
         :param file: File obj, the file we are running this on.
         :param args: tuple, list of arguments to add onto the call
         """
@@ -217,6 +234,8 @@ class Procedure(models.Model):
 
     def __str__(self):
         """
+        Create a human readable string for procedures.
+
         :return: str, the script name and it's description
         """
 

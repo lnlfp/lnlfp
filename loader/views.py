@@ -53,6 +53,9 @@ def logout_of_app(request):
 
 
 class UserHomeView(LoginRequiredMixin, View):
+    """
+    The home page for a user.
+    """
     def get(self, request, *args, **kwargs):
         """
         Build up the user home page.
@@ -76,6 +79,7 @@ class FileListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.file_set.all()
@@ -92,23 +96,32 @@ class FeedListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.feed_set.all()
 
 
 class UserCreate(LoginRequiredMixin, CreateView):
+    """
+    Manage User creation.
+    """
     model = User
     fields = '__all__'
     template_name = 'user_create_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this user.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_user', kwargs={'pk': self.object.id})
 
 
 class UserUpdate(LoginRequiredMixin, UpdateView):
     """
-    Manage feed updates
+    Manage feed updates.
     """
     model = User
     fields = '__all__'
@@ -117,6 +130,7 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
     def get(self, *args, **kwargs):
         """
         Ensure that the person accessing this feed is allowed access.
+
         :return: Http response, 404 or successful feed update form.
         """
         user = User.objects.get(pk=kwargs['pk'])
@@ -127,18 +141,28 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
             return Http404('Sorry you cannot access this user.')
 
     def get_success_url(self):
+        """
+        On success return the update page for this user.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_user', kwargs={'pk': self.object.id})
 
 
 class FeedCreate(LoginRequiredMixin, CreateView):
     """
-    Manage feed creation.
+    Manage Feed creation.
     """
     model = Feed
     fields = '__all__'
     template_name = 'feed_create_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this feed.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
@@ -153,6 +177,7 @@ class FeedUpdate(LoginRequiredMixin, UpdateView):
     def get(self, *args, **kwargs):
         """
         Ensure that the person accessing this feed is allowed access.
+
         :return: Http response, 404 or successful feed update form.
         """
         feed = Feed.objects.get(pk=kwargs['pk'])
@@ -163,6 +188,11 @@ class FeedUpdate(LoginRequiredMixin, UpdateView):
             return Http404('Sorry you cannot access this feed.')
 
     def get_success_url(self):
+        """
+        On success return the update page for this feed.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
@@ -177,26 +207,45 @@ class ProcedureListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.procedure_set.all()
 
 
 class ProcedureCreate(LoginRequiredMixin, CreateView):
+    """
+    Manage creation of procedures.
+    """
     form_class = ProcedureForm
     model = Procedure
     template_name = 'proc_create_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this procedure.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_proc', kwargs={'pk': self.object.id})
 
     def get_form_kwargs(self):
+        """
+        Add the user into the form kwargs.
+
+        :return: dict, arguments for a form.
+        """
         initial = super(ProcedureCreate, self).get_form_kwargs()
         initial['user'] = self.request.user
 
         return initial
 
     def get_context_data(self, **kwargs):
+        """
+        Add plugin languages to context.
+
+        :return: dict, context dict for the view.
+        """
         ctx = super(ProcedureCreate, self).get_context_data(**kwargs)
 
         langs = [x[0] for x in ctx['form'].fields['language'].choices if x[0] != '']
@@ -206,6 +255,11 @@ class ProcedureCreate(LoginRequiredMixin, CreateView):
         return ctx
 
     def form_valid(self, form):
+        """
+        Add the user to the form.
+
+        :return: bool, is the form valid.
+        """
         form.instance.user = self.request.user
         form.instance.save()
         return super(ProcedureCreate, self).form_valid(form)
@@ -220,6 +274,11 @@ class ProcedureUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'proc_update_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this procedure.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_proc', kwargs={'pk': self.object.id})
 
 
@@ -262,6 +321,9 @@ class LoadFileView(LoginRequiredMixin, View):
 
 
 class FileView(LoginRequiredMixin, View):
+    """
+    A table based view for a file we are loading.
+    """
     def get(self, request, pk, *args, **kwargs):
         """
         Parse the file and load on screen.
@@ -324,7 +386,7 @@ class FileView(LoginRequiredMixin, View):
         """
         Handle and run the proc we want to use.
 
-        :param request: HTTP request.
+        :param request: HTTP request.an_ad['fx_junk'][r] = an_ad['name']
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """

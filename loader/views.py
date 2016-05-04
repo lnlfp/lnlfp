@@ -346,8 +346,8 @@ class FileView(LoginRequiredMixin, View):
             header = next(reader)
             no_cols = len(header)
         else:
-            header = None
             data.append(next(reader))
+            header = ['']*len(data[0])
             row_num += 1
             no_cols = len(data[0])
 
@@ -355,7 +355,10 @@ class FileView(LoginRequiredMixin, View):
         for col in special_cols:
             choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
 
-        template_choice = """
+        template_choice = """<form>
+                                 <input name="col_select_{col_num}" type="text" value="{header}">
+                             </form>"""
+        """
 <select class="form-control" name="col_select_{col_num}">
     <option value selected disabled>Special Column</option>
     <option value="None">None</option>
@@ -365,7 +368,7 @@ class FileView(LoginRequiredMixin, View):
         column_choice_row = []
         for idx in range(no_cols):
             if header:
-                column_choice_row.append(template_choice.format(col_num=idx, choices=choices))
+                column_choice_row.append(template_choice.format(col_num=idx, choices=choices, header=header[idx]))
 
         for row in reader:
             data.append(row)
@@ -391,6 +394,8 @@ class FileView(LoginRequiredMixin, View):
         :return: HTTP response, the loaded table
         """
 
+        print(request.POST)
+
         proc_pk = request.POST.get('procedure')
 
         if proc_pk:
@@ -402,9 +407,9 @@ class FileView(LoginRequiredMixin, View):
 
         no_cols = len(file_to_run.get_first_lines(1)[0].split(file_to_run.delimiter))
 
-        cols = self.get_columns(request.POST, no_cols)
+        #cols = self.get_columns(request.POST, no_cols)
 
-        file_to_run.set_columns(cols)
+        #file_to_run.set_columns(cols)
 
         file_to_run.save()
 
@@ -422,7 +427,6 @@ class FileView(LoginRequiredMixin, View):
         """
 
         cols = [None] * no_cols
-
         for key in data:
             if key.startswith('col_select'):
                 if data[key] != 'None':

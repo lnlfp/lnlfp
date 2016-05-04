@@ -438,6 +438,6 @@ class FileView(LoginRequiredMixin, View):
         for key in data:
             if key.startswith('col_select'):
                 if data[key] != 'None':
-                    cols[key.split('_')[-1]] = data[key]
+                    cols[int(key.split('_')[-1])] = data[key]
 
         return cols

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+</body>
+{% extends "base.html" %}
+{% block content %}
+    <h2>Feed Management</h2>
+    <h3>Create Feed:</h3>
+    <a href="{% url 'loader:load_file' %}" class="btn btn-primary">New File</a>
+    <br>
+    <h3>Uploaded Files</h3>
+    <table class="table">
+        <tbody>
+            <th>File Name</th>
+            <th>Upload Date</th>
+            <th>Feed</th>
+            <th>User</th>
+            {% for file in user_files %}
+            <tr>
+                <td>
+                    <a href="{% url 'loader:view_file' pk=file.pk %}">{{ file }}</a>
+                </td>
+                <td>{{ file.upload_date }}</td>
+                <td>
+                    <a href="{% url 'loader:update_feed' pk=file.feed.pk %}">{{ file.feed }}</a>
+                </td>
+                <td>{{ file.user }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<br>
+<hr>
+<a href="{% url 'loader:user_home' %}" class="btn btn-primary">Go Back</a>
+{% endblock content %}

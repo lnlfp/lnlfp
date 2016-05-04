@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Feed Management</h2>
+    <h3>Create Feed:</h3>
+    <a href="{% url 'loader:create_proc' %}" class="btn btn-primary">New Procedure</a>
+    <br>
+    <h3>Update Procedure:</h3>
+    <table class="table">
+        <tbody>
+            <th>
+                Procedure Name
+            </th>
+            <th>
+                Procedure Description
+            </th>
+            <th>
+                Procedure Creator
+            </th>
+            {% for proc in user_procedures %}
+            <tr>
+                <td>
+                    <a href="{% url 'loader:update_proc' pk=proc.pk %}">{{ proc.name }}</a>
+                </td>
+                <td>
+                    {{ proc.comments }}
+                </td>
+                <td>
+                    {{ proc.user }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<br>
+<hr>
+<a href="{% url 'loader:user_home' %}" class="btn btn-primary">Go Back</a>
+{% endblock content %}

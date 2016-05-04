@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Feed Management</h2>
+    <h3>Create Feed:</h3>
+    <a href="{% url 'loader:create_feed' %}" class="btn btn-primary">New Feed</a>
+    <br>
+    <h3>Update Feed:</h3>
+    <table>
+        <tbody>
+            {% for feed in user_feeds %}
+            <tr>
+                <td>
+                    <a href="{% url 'loader:update_feed' pk=feed.pk %}" class="btn btn-sm btn-block btn-primary">{{ feed }}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<br>
+<hr>
+<a href="{% url 'loader:user_home' %}" class="btn btn-primary">Go Back</a>
+{% endblock content %}

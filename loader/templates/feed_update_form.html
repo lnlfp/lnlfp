@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update" />
+</form>
+<hr>
+<a href="{% url 'loader:user_feeds' %}" class="btn btn-primary">Go Back</a>
+{% endblock content %}

@@ -1,0 +1,10 @@
+@import url(https://fonts.googleapis.com/css?family=Questrial);
+
+body{
+        font-family: 'Questrial', sans-serif;
+}
+
+.file_outer{
+        margin: 0 auto;
+        width: 50%;
+    }

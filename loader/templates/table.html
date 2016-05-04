@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered">
+                <tbody>
+                    <tr>
+                        {% for col in column_choice %}
+                        <th>
+                            {{ col|safe }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                    {% if header %}
+                    <tr>
+                        {% for item in header %}
+                        <th>
+                            {{ item }}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                    {% for row in data %}
+                    <tr>
+                        {% for col in row %}
+                        <td>
+                            {{ col }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <select class="form-control pull-right" name="procedure">
+            <option value selected disabled>Please Select A Procedure</option>
+            {% for proc in procedures %}
+            <option value="{{ proc.pk }}">{{ proc.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
+</div>
+<style>
+    .table-responsive{
+    overflow-x:scroll;
+    }
+
+    td, th{
+        min-width:11em;
+    }
+</style>
+{% endblock content %}

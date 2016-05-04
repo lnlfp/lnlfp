@@ -2,12 +2,14 @@ import codecs
 import csv
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import password_change
 from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
-from django.views.generic import View, ListView, CreateView, UpdateView
+from django.views.generic import View, ListView, CreateView, UpdateView, FormView
 from loader.forms import FileForm, ProcedureForm, ValidationError
 from loader.models import File, Column, Procedure, Feed
 
@@ -124,7 +126,7 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
     Manage feed updates.
     """
     model = User
-    fields = '__all__'
+    fields = ['first_name', 'last_name', 'email']
     template_name = 'user_update_form.html'
 
     def get(self, *args, **kwargs):
@@ -147,6 +149,12 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
         :return: HTTP, response for update page.
         """
         return reverse('loader:update_user', kwargs={'pk': self.object.id})
+
+
+def change_own_pass(request):
+    return password_change(request,
+                           template_name='change_password.html',
+                           post_change_redirect=reverse('loader:update_user', kwargs={'pk': request.user.pk}))
 
 
 class FeedCreate(LoginRequiredMixin, CreateView):

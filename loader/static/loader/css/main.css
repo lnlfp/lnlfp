@@ -7,4 +7,9 @@ body{
 .file_outer{
         margin: 0 auto;
         width: 50%;
-    }
+}
+
+.errorlist{
+    color: #ee0000;
+    list-style-type: none;
+}

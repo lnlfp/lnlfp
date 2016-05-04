@@ -4,7 +4,7 @@
         <form action="{% url 'loader:login_to_app' %}" method="post" accept-charset="utf-8">
             {% csrf_token %}
             <div class="jumbotron file_outer">
-            {{ form.errors }}
+            {{ form.non_field_errors }}
             <div class="form-group">
                 <h3>Login</h3>
 

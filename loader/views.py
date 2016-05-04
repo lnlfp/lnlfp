@@ -2,15 +2,14 @@ import codecs
 import csv
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import password_change
 from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
-from django.views.generic import View, ListView, CreateView, UpdateView, FormView
-from loader.forms import FileForm, ProcedureForm, ValidationError
+from django.views.generic import View, ListView, CreateView, UpdateView
+from loader.forms import FileForm, ProcedureForm, ValidationError, LoginForm
 from loader.models import File, Column, Procedure, Feed
 
 
@@ -25,22 +24,24 @@ def login_to_app(request):
     :param request: HTTP request object
     :return: redirect to the load_file window.
     """
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
 
-        if user is not None:
-            if user.is_active:
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            user = form.login()
+
+            if user:
                 login(request, user)
 
                 if request.POST.get('next'):
                     return redirect(request.POST.get('next', 'loader:user_home'))
                 else:
-                    return redirect('loader:user_home')
-
+                    return redirect('loader:user_home', )
+    else:
+        form = LoginForm()
     # If we have reached here, the user has not registered as logged in.
-    return redirect('login')
+    return render(request, 'login.html', {'form': form})
 
 
 def logout_of_app(request):
@@ -51,7 +52,7 @@ def logout_of_app(request):
     :return: redirect to login page.
     """
     logout(request)
-    return redirect('loader:login_to_app')
+    return redirect('loader:login')
 
 
 class UserHomeView(LoginRequiredMixin, View):
@@ -440,4 +441,4 @@ class FileView(LoginRequiredMixin, View):
                 if data[key] != 'None':
                     cols[int(key.split('_')[-1])] = data[key]
 
-        return cols
+        return colspy

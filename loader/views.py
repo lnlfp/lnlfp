@@ -105,23 +105,6 @@ class FeedListView(LoginRequiredMixin, ListView):
         return self.request.user.feed_set.all()
 
 
-class UserCreate(LoginRequiredMixin, CreateView):
-    """
-    Manage User creation.
-    """
-    model = User
-    fields = '__all__'
-    template_name = 'user_create_form.html'
-
-    def get_success_url(self):
-        """
-        On success return the update page for this user.
-
-        :return: HTTP, response for update page.
-        """
-        return reverse('loader:update_user', kwargs={'pk': self.object.id})
-
-
 class UserUpdate(LoginRequiredMixin, UpdateView):
     """
     Manage feed updates.

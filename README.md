@@ -8,13 +8,17 @@ We will eventually build a script for this but it isn't a focus right now.
 
 For now you need python 3.4+.
 
-Run pip install -r requirements.txt
+    Run pip install -r requirements.txt
 
-Copy the example_settings.py file into a settings.py file and give it a secret key.
+    python setup.py
+    
+    python manage.py makemigrations
+    
+    python manage.py migrate
 
-To run:
+To test it works run:
 
-python manage.py runserver
+    python manage.py runserver
 
 You will then be able to access the program from localhost:8000/loader
 

@@ -328,10 +328,9 @@ class FileView(LoginRequiredMixin, View):
 
         special_cols = Column.objects.all().order_by(Lower('name'))
         data_file = file_to_load.data.file
-        reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
+        reader = csv.reader(codecs.iterdecode(data_file, 'utf-8-sig'), delimiter=file_to_load.delimiter)
         data = []
         row_num = 0
-
         if file_to_load.has_header:
             header = next(reader)
             no_cols = len(header)
@@ -381,6 +380,7 @@ class FileView(LoginRequiredMixin, View):
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """
+        print(request.POST.get('column_num_0'))
         proc_pk = request.POST.get('procedure')
 
         if proc_pk:

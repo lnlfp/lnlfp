@@ -207,7 +207,45 @@ class File(models.Model):
         number_of_nulls = list(self.df.isnull().sum())
         # column_pos = list(range(0, len(columns) +1))
         column_info_dict = dict(zip(columns, zip(column_pos, column_types, no_of_uniques, number_of_nulls)))
-        self.column_info = zip(self.columns, column_types, no_of_uniques, number_of_nulls)        
+        self.column_info = zip(self.columns, column_types, no_of_uniques, number_of_nulls) 
+        
+    def get_table_size(self):
+        '''
+        Get height and width of table 
+        '''
+        self.table_size = self.df.shape
+
+    def possible_pk_cols(self):
+        '''
+        We want to find the selection of columns that are not null, and whose product is greater
+        than the number of rows in the table
+        '''
+        not_null_cols = [ a for a,b,c,d in self.column_info if d == 0]
+        ''' 
+        If the number of unique values in a columns is equal to the number 
+        of rows in the table then that column is unique and can be the primary key.
+        If so, we choose the column closest to the left. 
+        '''
+        unique_cols = [ a for a,b,c,d in self.column_info if e == self.table_size[0] ]
+        if len(unique_cols) <> 0:
+            self.pk = unique_cols[0]
+        else:
+        '''
+        If no single column can be a primary key then we need to find a combination of columns
+        that can be unique
+        '''
+            pass 
+        
+    def are_cols_pk(cols):
+        '''
+        We check if a list of columns could possibly be a primary key
+        i.e. are they unique?
+        '''
+        unq_group = set(data.groupby(unq_cols).size())
+        if unq_group.pop() == 1 and len(unq_group) == 1:
+            return True
+        else:
+            return False   
 
     def open_cursor(self):
         """

@@ -133,6 +133,7 @@ class File(models.Model):
             return json.loads(self.columns)
 
         return []
+        # what is this - why is columns not a list of columns?
 
     def set_columns(self, lst):
         """
@@ -166,6 +167,47 @@ class File(models.Model):
         self.terminator = dialect.lineterminator
 
         self.has_header = csv.Sniffer().has_header(''.join(self.get_first_lines()))
+        
+    def get_dataframe(self):
+        '''
+        Insert the file into a dataframe so we can anaylse it
+        '''
+        if self.has_header == True:
+            skip = 1
+        else:
+            skip = 0
+        self.df = pandas.read_csv( self.data.name
+                                 , delimiter = self.delimiter
+                                 , lineterminator = self.terminator
+                                 , header = None
+                                 , names = self.columns
+                                 , skiprows = skip)
+                                 
+    def get_datatype_of_column(self, col):
+        '''
+        This tells us the sql friendly datatype of the column
+        '''
+        if self.df[col].dtype in ('float64', 'int64'):
+            return 'number'
+        if self.df[col].dtype == 'object':
+            try:
+                self.df[col] = pandas.to_datetime(self.df[col])
+                return 'date'
+            except ValueError:
+                l_col_len = self.df[col].str.len().max()
+                return 'varchar2(' + str(l_col_len) + ')'
+        
+    def get_column_info(self):
+        '''
+        Get some information on the columns so we can determine datatypes and 
+        a primary key for loading the table 
+        '''
+        column_types = [self.get_datatype_of_column(e) for e in self.columns]
+        no_of_uniques = [self.df[e].nunique() for e in self.columns]
+        number_of_nulls = list(self.df.isnull().sum())
+        # column_pos = list(range(0, len(columns) +1))
+        column_info_dict = dict(zip(columns, zip(column_pos, column_types, no_of_uniques, number_of_nulls)))
+        self.column_info = zip(self.columns, column_types, no_of_uniques, number_of_nulls)        
 
     def open_cursor(self):
         """

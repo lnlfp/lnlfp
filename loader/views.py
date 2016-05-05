@@ -327,11 +327,9 @@ class FileView(LoginRequiredMixin, View):
         file_to_load = File.objects.get(pk=pk)
 
         special_cols = Column.objects.all().order_by(Lower('name'))
-
         data_file = file_to_load.data.file
         reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
         data = []
-
         row_num = 0
 
         if file_to_load.has_header:
@@ -347,9 +345,7 @@ class FileView(LoginRequiredMixin, View):
         for col in special_cols:
             choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
 
-        template_choice = """<form>
-                                 <input name="col_select_{col_num}" type="text" value="{header}">
-                             </form>"""
+        template_choice = """<input name="col_select_{col_num}" type="text" value="{header}">"""
         """
 <select class="form-control" name="col_select_{col_num}">
     <option value selected disabled>Special Column</option>
@@ -385,9 +381,6 @@ class FileView(LoginRequiredMixin, View):
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """
-
-        print(request.POST)
-
         proc_pk = request.POST.get('procedure')
 
         if proc_pk:
@@ -399,9 +392,9 @@ class FileView(LoginRequiredMixin, View):
 
         no_cols = len(file_to_run.get_first_lines(1)[0].split(file_to_run.delimiter))
 
-        #cols = self.get_columns(request.POST, no_cols)
+        cols = self.get_columns(request.POST, no_cols)
 
-        #file_to_run.set_columns(cols)
+        file_to_run.set_columns(cols)
 
         file_to_run.save()
 
@@ -424,4 +417,4 @@ class FileView(LoginRequiredMixin, View):
                 if data[key] != 'None':
                     cols[int(key.split('_')[-1])] = data[key]
 
-        return colspy
+        return cols

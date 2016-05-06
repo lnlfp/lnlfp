@@ -2,6 +2,7 @@ import csv
 import datetime
 import json
 import os
+import pandas
 
 from django.contrib.auth.models import User
 from django.db import models, connection
@@ -205,8 +206,9 @@ class File(models.Model):
         column_types = [self.get_datatype_of_column(e) for e in self.columns]
         no_of_uniques = [self.df[e].nunique() for e in self.columns]
         number_of_nulls = list(self.df.isnull().sum())
-        # column_pos = list(range(0, len(columns) +1))
-        column_info_dict = dict(zip(columns, zip(column_pos, column_types, no_of_uniques, number_of_nulls)))
+        # TODO Rob: Uncommented as we use column_pos in next row
+        column_pos = list(range(0, len(self.columns) +1))
+        column_info_dict = dict(zip(self.columns, zip(column_pos, column_types, no_of_uniques, number_of_nulls)))
         self.column_info = zip(self.columns, column_types, no_of_uniques, number_of_nulls) 
         
     def get_table_size(self):
@@ -215,7 +217,7 @@ class File(models.Model):
         '''
         self.table_size = self.df.shape
 
-    def possible_pk_cols(self):
+    def possible_pk_cols(self, e):
         '''
         We want to find the selection of columns that are not null, and whose product is greater
         than the number of rows in the table
@@ -226,22 +228,25 @@ class File(models.Model):
         of rows in the table then that column is unique and can be the primary key.
         If so, we choose the column closest to the left. 
         '''
-        unique_cols = [ a for a,b,c,d in self.column_info if e == self.table_size[0] ]
-        if len(unique_cols) <> 0:
-            self.pk = unique_cols[0]
+        # TODO Rob: I just added this e to parameters don't know what it's for
+        # TODO Rob: Saved unique_cols for later user, correct? see line 247
+        self.unique_cols = [ a for a,b,c,d in self.column_info if e == self.table_size[0] ]
+        if len(self.unique_cols) != 0:
+            self.pk = self.unique_cols[0]
         else:
-        '''
-        If no single column can be a primary key then we need to find a combination of columns
-        that can be unique
-        '''
+            '''
+            If no single column can be a primary key then we need to find a combination of columns
+            that can be unique
+            '''
             pass 
         
-    def are_cols_pk(cols):
+    def are_cols_pk(self, cols):
         '''
         We check if a list of columns could possibly be a primary key
         i.e. are they unique?
         '''
-        unq_group = set(data.groupby(unq_cols).size())
+        # TODO Rob: refered data and unq_cols to self please check if it should be cols
+        unq_group = set(self.data.groupby(self.unique_cols).size())
         if unq_group.pop() == 1 and len(unq_group) == 1:
             return True
         else:

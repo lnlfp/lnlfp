@@ -4,11 +4,12 @@ import csv
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.auth.views import password_change
 from django.core.urlresolvers import reverse
 from django.db.models.functions import Lower
 from django.shortcuts import render, redirect, Http404
 from django.views.generic import View, ListView, CreateView, UpdateView
-from loader.forms import FileForm, ProcedureForm, ValidationError
+from loader.forms import FileForm, ProcedureForm, ValidationError, LoginForm
 from loader.models import File, Column, Procedure, Feed
 
 
@@ -23,22 +24,24 @@ def login_to_app(request):
     :param request: HTTP request object
     :return: redirect to the load_file window.
     """
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
 
-        if user is not None:
-            if user.is_active:
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            user = form.login()
+
+            if user:
                 login(request, user)
 
                 if request.POST.get('next'):
                     return redirect(request.POST.get('next', 'loader:user_home'))
                 else:
-                    return redirect('loader:user_home')
-
+                    return redirect('loader:user_home', )
+    else:
+        form = LoginForm()
     # If we have reached here, the user has not registered as logged in.
-    return redirect('login')
+    return render(request, 'login.html', {'form': form})
 
 
 def logout_of_app(request):
@@ -49,10 +52,13 @@ def logout_of_app(request):
     :return: redirect to login page.
     """
     logout(request)
-    return redirect('loader:login_to_app')
+    return redirect('loader:login')
 
 
 class UserHomeView(LoginRequiredMixin, View):
+    """
+    The home page for a user.
+    """
     def get(self, request, *args, **kwargs):
         """
         Build up the user home page.
@@ -76,6 +82,7 @@ class FileListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.file_set.all()
@@ -92,31 +99,24 @@ class FeedListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.feed_set.all()
 
 
-class UserCreate(LoginRequiredMixin, CreateView):
-    model = User
-    fields = '__all__'
-    template_name = 'user_create_form.html'
-
-    def get_success_url(self):
-        return reverse('loader:update_user', kwargs={'pk': self.object.id})
-
-
 class UserUpdate(LoginRequiredMixin, UpdateView):
     """
-    Manage feed updates
+    Manage feed updates.
     """
     model = User
-    fields = '__all__'
+    fields = ['first_name', 'last_name', 'email']
     template_name = 'user_update_form.html'
 
     def get(self, *args, **kwargs):
         """
         Ensure that the person accessing this feed is allowed access.
+
         :return: Http response, 404 or successful feed update form.
         """
         user = User.objects.get(pk=kwargs['pk'])
@@ -127,18 +127,34 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
             return Http404('Sorry you cannot access this user.')
 
     def get_success_url(self):
+        """
+        On success return the update page for this user.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_user', kwargs={'pk': self.object.id})
+
+
+def change_own_pass(request):
+    return password_change(request,
+                           template_name='change_password.html',
+                           post_change_redirect=reverse('loader:update_user', kwargs={'pk': request.user.pk}))
 
 
 class FeedCreate(LoginRequiredMixin, CreateView):
     """
-    Manage feed creation.
+    Manage Feed creation.
     """
     model = Feed
     fields = '__all__'
     template_name = 'feed_create_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this feed.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
@@ -153,6 +169,7 @@ class FeedUpdate(LoginRequiredMixin, UpdateView):
     def get(self, *args, **kwargs):
         """
         Ensure that the person accessing this feed is allowed access.
+
         :return: Http response, 404 or successful feed update form.
         """
         feed = Feed.objects.get(pk=kwargs['pk'])
@@ -163,6 +180,11 @@ class FeedUpdate(LoginRequiredMixin, UpdateView):
             return Http404('Sorry you cannot access this feed.')
 
     def get_success_url(self):
+        """
+        On success return the update page for this feed.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_feed', kwargs={'pk': self.object.id})
 
 
@@ -177,26 +199,45 @@ class ProcedureListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """
         Limit the feeds to the logged in user
+
         :return: QuerySet, the feeds the user has access to.
         """
         return self.request.user.procedure_set.all()
 
 
 class ProcedureCreate(LoginRequiredMixin, CreateView):
+    """
+    Manage creation of procedures.
+    """
     form_class = ProcedureForm
     model = Procedure
     template_name = 'proc_create_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this procedure.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_proc', kwargs={'pk': self.object.id})
 
     def get_form_kwargs(self):
+        """
+        Add the user into the form kwargs.
+
+        :return: dict, arguments for a form.
+        """
         initial = super(ProcedureCreate, self).get_form_kwargs()
         initial['user'] = self.request.user
 
         return initial
 
     def get_context_data(self, **kwargs):
+        """
+        Add plugin languages to context.
+
+        :return: dict, context dict for the view.
+        """
         ctx = super(ProcedureCreate, self).get_context_data(**kwargs)
 
         langs = [x[0] for x in ctx['form'].fields['language'].choices if x[0] != '']
@@ -206,6 +247,11 @@ class ProcedureCreate(LoginRequiredMixin, CreateView):
         return ctx
 
     def form_valid(self, form):
+        """
+        Add the user to the form.
+
+        :return: bool, is the form valid.
+        """
         form.instance.user = self.request.user
         form.instance.save()
         return super(ProcedureCreate, self).form_valid(form)
@@ -220,6 +266,11 @@ class ProcedureUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'proc_update_form.html'
 
     def get_success_url(self):
+        """
+        On success return the update page for this procedure.
+
+        :return: HTTP, response for update page.
+        """
         return reverse('loader:update_proc', kwargs={'pk': self.object.id})
 
 
@@ -262,6 +313,9 @@ class LoadFileView(LoginRequiredMixin, View):
 
 
 class FileView(LoginRequiredMixin, View):
+    """
+    A table based view for a file we are loading.
+    """
     def get(self, request, pk, *args, **kwargs):
         """
         Parse the file and load on screen.
@@ -273,19 +327,16 @@ class FileView(LoginRequiredMixin, View):
         file_to_load = File.objects.get(pk=pk)
 
         special_cols = Column.objects.all().order_by(Lower('name'))
-
         data_file = file_to_load.data.file
-        reader = csv.reader(codecs.iterdecode(data_file, 'utf-8'), delimiter=file_to_load.delimiter)
+        reader = csv.reader(codecs.iterdecode(data_file, 'utf-8-sig'), delimiter=file_to_load.delimiter)
         data = []
-
         row_num = 0
-
         if file_to_load.has_header:
             header = next(reader)
             no_cols = len(header)
         else:
-            header = None
             data.append(next(reader))
+            header = ['']*len(data[0])
             row_num += 1
             no_cols = len(data[0])
 
@@ -293,7 +344,8 @@ class FileView(LoginRequiredMixin, View):
         for col in special_cols:
             choices += '<option value="{pk}">{name}</option>\n'.format(pk=col.pk, name=col.name)
 
-        template_choice = """
+        template_choice = """<input name="col_select_{col_num}" type="text" value="{header}">"""
+        """
 <select class="form-control" name="col_select_{col_num}">
     <option value selected disabled>Special Column</option>
     <option value="None">None</option>
@@ -303,7 +355,7 @@ class FileView(LoginRequiredMixin, View):
         column_choice_row = []
         for idx in range(no_cols):
             if header:
-                column_choice_row.append(template_choice.format(col_num=idx, choices=choices))
+                column_choice_row.append(template_choice.format(col_num=idx, choices=choices, header=header[idx]))
 
         for row in reader:
             data.append(row)
@@ -324,11 +376,11 @@ class FileView(LoginRequiredMixin, View):
         """
         Handle and run the proc we want to use.
 
-        :param request: HTTP request.
+        :param request: HTTP request.an_ad['fx_junk'][r] = an_ad['name']
         :param file_pk: pk of the file we need to load into the view.
         :return: HTTP response, the loaded table
         """
-
+        print(request.POST.get('column_num_0'))
         proc_pk = request.POST.get('procedure')
 
         if proc_pk:
@@ -360,10 +412,9 @@ class FileView(LoginRequiredMixin, View):
         """
 
         cols = [None] * no_cols
-
         for key in data:
             if key.startswith('col_select'):
                 if data[key] != 'None':
-                    cols[key.split('_')[-1]] = data[key]
+                    cols[int(key.split('_')[-1])] = data[key]
 
         return cols

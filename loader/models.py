@@ -15,6 +15,7 @@ def feed_directory_path(instance, filename):
     Function to return an upload path for new files.
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
     Joining these with slashes and the filename itself gives the filepath.
+
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -30,6 +31,7 @@ def proc_directory_path(instance, filename):
     Function to return an upload path for new files.
     Takes a class instance and finds it's feedname, for the folder structure, and the upload date.
     Joining these with slashes and the filename itself gives the filepath.
+
     :param instance: File model instance, used to receive the feed name and the upload date.
     :param filename: str, name of the file being uploaded.
     :return: str, complete filepath and name for file to be uploaded.
@@ -59,6 +61,7 @@ class Feed(models.Model):
     def __str__(self):
         """
         Return name of feed for when it is represented.
+
         :return: str, name of feed
         """
         return self.name
@@ -81,6 +84,7 @@ class Column(models.Model):
     def __str__(self):
         """
         Return name of column for when it is represented.
+
         :return: str, name of column.
         """
 
@@ -123,28 +127,40 @@ class File(models.Model):
     def get_columns(self):
         """
         Return file column headers as a list.
+
         :return: list, list of column header
         """
         if self.columns:
             return json.loads(self.columns)
 
         return []
+        # what is this - why is columns not a list of columns?
 
     def set_columns(self, lst):
         """
         Take a list of columns and set the columns property to a string representing this.
+
         :param lst: lst, a list representing the columns in this file.
         """
 
         self.columns = json.dumps(lst)
 
     def get_first_lines(self, num=10):
+        """
+        Open the file and return the first few lines decided by num.
+
+        :param num: int, the number of lines to be returned.
+        :return: lst[str], the list of lines to be returned.
+        """
         with open(self.data.name) as data_file:
             data = [next(data_file) for _ in range(num)]
 
         return data
 
     def get_table_info(self):
+        """
+        Do some initial sniffing to understand the format of a file.
+        """
         dialect = csv.Sniffer().sniff(''.join(self.get_first_lines()))
 
         self.delimiter = dialect.delimiter
@@ -152,10 +168,94 @@ class File(models.Model):
         self.terminator = dialect.lineterminator
 
         self.has_header = csv.Sniffer().has_header(''.join(self.get_first_lines()))
+        
+    def get_dataframe(self):
+        '''
+        Insert the file into a dataframe so we can anaylse it
+        '''
+        if self.has_header == True:
+            skip = 1
+        else:
+            skip = 0
+        self.df = pandas.read_csv( self.data.name
+                                 , delimiter = self.delimiter
+                                 , lineterminator = self.terminator
+                                 , header = None
+                                 , names = self.columns
+                                 , skiprows = skip)
+                                 
+    def get_datatype_of_column(self, col):
+        '''
+        This tells us the sql friendly datatype of the column
+        '''
+        if self.df[col].dtype in ('float64', 'int64'):
+            return 'number'
+        if self.df[col].dtype == 'object':
+            try:
+                self.df[col] = pandas.to_datetime(self.df[col])
+                return 'date'
+            except ValueError:
+                l_col_len = self.df[col].str.len().max()
+                return 'varchar2(' + str(l_col_len) + ')'
+        
+    def get_column_info(self):
+        '''
+        Get some information on the columns so we can determine datatypes and 
+        a primary key for loading the table 
+        '''
+        column_types = [self.get_datatype_of_column(e) for e in self.columns]
+        no_of_uniques = [self.df[e].nunique() for e in self.columns]
+        number_of_nulls = list(self.df.isnull().sum())
+        # TODO Rob: Uncommented as we use column_pos in next row
+        column_pos = list(range(0, len(self.columns) +1))
+        column_info_dict = dict(zip(self.columns, zip(column_pos, column_types, no_of_uniques, number_of_nulls)))
+        self.column_info = zip(self.columns, column_types, no_of_uniques, number_of_nulls) 
+        
+    def get_table_size(self):
+        '''
+        Get height and width of table 
+        '''
+        self.table_size = self.df.shape
+
+    def possible_pk_cols(self, e):
+        '''
+        We want to find the selection of columns that are not null, and whose product is greater
+        than the number of rows in the table
+        '''
+        not_null_cols = [ a for a,b,c,d in self.column_info if d == 0]
+        ''' 
+        If the number of unique values in a columns is equal to the number 
+        of rows in the table then that column is unique and can be the primary key.
+        If so, we choose the column closest to the left. 
+        '''
+        # TODO Rob: I just added this e to parameters don't know what it's for
+        # TODO Rob: Saved unique_cols for later user, correct? see line 247
+        self.unique_cols = [ a for a,b,c,d in self.column_info if e == self.table_size[0] ]
+        if len(self.unique_cols) != 0:
+            self.pk = self.unique_cols[0]
+        else:
+            '''
+            If no single column can be a primary key then we need to find a combination of columns
+            that can be unique
+            '''
+            pass 
+        
+    def are_cols_pk(self, cols):
+        '''
+        We check if a list of columns could possibly be a primary key
+        i.e. are they unique?
+        '''
+        # TODO Rob: refered data and unq_cols to self please check if it should be cols
+        unq_group = set(self.data.groupby(self.unique_cols).size())
+        if unq_group.pop() == 1 and len(unq_group) == 1:
+            return True
+        else:
+            return False   
 
     def open_cursor(self):
         """
         Return a cursor to the database
+
         :return: cursor object.
         """
         return connection.cursor()
@@ -163,6 +263,7 @@ class File(models.Model):
     def __str__(self):
         """
         concatenate upload date and file name to provide rough storage location.
+
         :return: str, identifying string for this file.
         """
         return os.path.split(self.data.name)[-1]
@@ -201,6 +302,7 @@ class Procedure(models.Model):
     def run(self, file, *args):
         """
         Call up a subprocess to run our procedures.
+
         :param file: File obj, the file we are running this on.
         :param args: tuple, list of arguments to add onto the call
         """
@@ -211,12 +313,14 @@ class Procedure(models.Model):
                      'user': file.user.username,
                      'user_email': file.user.email}
 
-        json_args = json.dumps(file_args)
+        json_args = json.dumps(file_args, separators=(',', ':'))
 
         self.LANGUAGE_INTERPRETER[self.language].run(self, json_args, *args)
 
     def __str__(self):
         """
+        Create a human readable string for procedures.
+
         :return: str, the script name and it's description
         """
 

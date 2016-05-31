@@ -6,6 +6,7 @@ try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
+import pip
 from pip.req import parse_requirements
 
 
@@ -28,7 +29,7 @@ def main():
 
 def package_setup():
 
-    reqs = [str(ir.req) for ir in parse_requirements('requirements.txt')]
+    reqs = [str(ir.req) for ir in parse_requirements('requirements.txt', session=pip.download.PipSession())]
 
     setup(name='lionel',
           version='0.1',

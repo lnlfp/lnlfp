@@ -1,6 +1,7 @@
 import os
 import random
 import string
+import sys
 
 try:
     from setuptools import setup
@@ -54,4 +55,7 @@ def make_key(pk=None):
         return ''.join([random.SystemRandom().choice(chars) for _ in range(50)])
 
 if __name__ == '__main__':
-    main()
+    if sys.argv[1] == 'install':
+        main()
+    elif sys.argv[1] == 'make_key':
+        make_key()

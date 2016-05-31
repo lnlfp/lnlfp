@@ -1,10 +1,14 @@
 import datetime
+from io import StringIO
+import json
+from sqlite3 import IntegrityError
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+from loader.forms import FileForm
 from loader.models import File, Feed, Column, feed_directory_path
 
 
@@ -27,13 +31,15 @@ class FileTestCase(TestCase):
 
         self.sample_columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
+        self.file = StringIO('test text')
+
     def test_needs_feed(self):
         """
         Ensure that a File requires a feed
 
         :return: None
         """
-        with self.assertRaises(Feed.DoesNotExist):
+        with self.assertRaises(IntegrityError):
             File.objects.create(user=self.good_user)
 
     def test_needs_user(self):
@@ -42,7 +48,7 @@ class FileTestCase(TestCase):
 
         :return: None
         """
-        with self.assertRaises(User.DoesNotExist):
+        with self.assertRaises(IntegrityError):
             File.objects.create(feed=self.usable_feed)
 
     def test_authorised_user(self):
@@ -51,11 +57,11 @@ class FileTestCase(TestCase):
 
         :return: None
         """
-        f_good = File(feed=self.usable_feed, user=self.good_user)
-        f_good.clean()
-        with self.assertRaises(ValidationError):
-            f_bad = File(feed=self.usable_feed, user=self.bad_user)
-            f_bad.clean()
+        f_good = FileForm(self.good_user, {'feed': self.usable_feed.pk}, {'data': self.file})
+        self.assertEqual(True, f_good.is_valid())
+
+        f_bad = FileForm(self.bad_user, {'feed': self.usable_feed.pk}, {'data': self.file})
+        self.assertEqual(False, f_bad.is_valid())
 
     def test_created_date(self):
         """
@@ -63,12 +69,12 @@ class FileTestCase(TestCase):
 
         :return: None
         """
-        file = File.objects.create(feed=self.usable_feed, user=self.good_user)
+        file = File.objects.create(feed=self.usable_feed, user=self.good_user, data=self.file)
         self.assertEqual(file.upload_date.date(), datetime.date.today())
 
     def test_file_path(self):
         """
-        Ensure that the filep ath given for a file includes the feed name, upload date and file name
+        Ensure that the file path given for a file includes the feed name, upload date and file name
 
         :return: None
         """
@@ -76,7 +82,7 @@ class FileTestCase(TestCase):
         file = File.objects.create(feed=self.usable_feed, user=self.good_user, data=self.file)
 
         self.assertEqual(feed_directory_path(file, file.data.name),
-                         '{}/{}/{}'.format(self.usable_feed.name, file.upload_date.strftime('%Y%m%d'), file.file_name))
+                         '{}/{}/{}'.format(self.usable_feed.name, file.upload_date.strftime('%Y%m%d'), file.data.name))
 
     def test_columns(self):
         """
@@ -87,28 +93,13 @@ class FileTestCase(TestCase):
 
         :return:
         """
-        file = File(user=self.good_user, feed=self.usable_feed, file_name='test.csv')
+        file = File(user=self.good_user, feed=self.usable_feed, data=self.file)
 
         self.assertEqual(file.get_columns(), [])
 
         file.set_columns(self.sample_columns)
 
-        self.assertEqual(file.columns, ','.join(self.sample_columns))
-
-        self.assertEqual(file.get_columns(), self.sample_columns)
-
-    def test_delimiter(self):
-        """
-        Ensure that columns returns with the expected delimiter given to the file. And that this does not affect get or
-        set columns.
-
-        :return: None
-        """
-        file = File(user=self.good_user, feed=self.usable_feed, file_name='test.csv', delimiter='|')
-
-        file.set_columns(self.sample_columns)
-
-        self.assertEqual(file.columns, '|'.join(self.sample_columns))
+        self.assertEqual(file.columns, json.dumps(self.sample_columns))
 
         self.assertEqual(file.get_columns(), self.sample_columns)
 
@@ -119,7 +110,7 @@ class FileTestCase(TestCase):
         :return: None
         """
 
-        file = File.objects.create(user=self.good_user, feed=self.usable_feed, file_name = 'test.csv')
+        file = File.objects.create(user=self.good_user, feed=self.usable_feed, data=self.file)
 
         self.assertEqual(str(file), datetime.date.today().strftime('%Y%m%d') + '/test.csv')
 
